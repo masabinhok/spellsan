@@ -1,6 +1,6 @@
 "use client";
 import { useState, useMemo } from "react";
-import spellingWords from "../../spelling_words.json";
+import spellingWords from "../../clean_spelling_words.json";
 import { speakWordInBritishEnglish } from "../utils/speech";
 export default function LearnWords() {
   const [searchTerm, setSearchTerm] = useState("");

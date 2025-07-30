@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import spellingWords from '../../spelling_words.json';
+import spellingWords from '../../clean_spelling_words.json';
 
 interface ProgressStats {
   totalWords: number;
@@ -117,8 +117,8 @@ export default function Progress() {
                 key={period}
                 onClick={() => setSelectedPeriod(period)}
                 className={`px-6 py-2 rounded-xl transition-all ${selectedPeriod === period
-                    ? 'bg-blue-600 text-white'
-                    : 'text-slate-600 hover:bg-slate-100'
+                  ? 'bg-blue-600 text-white'
+                  : 'text-slate-600 hover:bg-slate-100'
                   }`}
               >
                 {period === 'week' ? 'This Week' : period === 'month' ? 'This Month' : 'All Time'}

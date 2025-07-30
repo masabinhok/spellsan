@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import spellingWords from "../../spelling_words.json";
+import spellingWords from "../../clean_spelling_words.json";
 import { speakWordInBritishEnglish } from "../utils/speech";
 interface GameStats {
   correct: number;

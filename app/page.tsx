@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import spellingWords from "../spelling_words.json";
+import spellingWords from "../clean_spelling_words.json";
 
 export default function Dashboard() {
   const [stats, setStats] = useState({
