@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import spellingWords from "../clean_spelling_words.json";
+import BritishAudioStatus from "./components/BritishAudioStatus";
+import { preloadBritishAudio } from "./utils/britishAudio";
 
 export default function Dashboard() {
   const [stats, setStats] = useState({
@@ -18,6 +20,10 @@ export default function Dashboard() {
     if (savedStats) {
       setStats((prev) => ({ ...prev, ...JSON.parse(savedStats) }));
     }
+
+    // Preload British audio for common words
+    const commonWords = spellingWords.slice(0, 100);
+    preloadBritishAudio(commonWords);
   }, []);
 
   const alphabetStats = Array.from({ length: 26 }, (_, i) => {
@@ -110,6 +116,11 @@ export default function Dashboard() {
             Master spelling for the SAN competition with our comprehensive
             practice platform
           </p>
+        </div>
+
+        {/* British Audio Status */}
+        <div className="mb-8 md:mb-12">
+          <BritishAudioStatus />
         </div>
 
         {/* Stats Overview */}
