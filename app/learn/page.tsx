@@ -36,132 +36,108 @@ export default function LearnWords() {
   };
   return (
     <div className="bg-slate-50 min-h-screen">
-      {" "}
-      <div className="container mx-auto px-4 py-12 max-w-7xl">
-        {" "}
-        {/* Header */}{" "}
-        <div className="text-center mb-12">
-          {" "}
-          <h1 className="text-4xl font-bold text-slate-800 mb-4">
-            {" "}
-            Learn Spelling Words{" "}
-          </h1>{" "}
-          <p className="text-xl text-slate-600 max-w-2xl mx-auto">
-            {" "}
+      <div className="container mx-auto px-4 py-6 md:py-12 max-w-7xl">
+        {/* Header */}
+        <div className="text-center mb-8 md:mb-12">
+          <h1 className="text-3xl md:text-4xl font-bold text-slate-800 mb-3 md:mb-4">
+            Learn Spelling Words
+          </h1>
+          <p className="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto px-4">
             Browse, search, and study all {spellingWords.length} competition
             words with British English pronunciation{" "}
           </p>{" "}
         </div>{" "}
-        {/* Filters */}{" "}
-        <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-6 mb-8">
-          {" "}
-          <div className="flex flex-col lg:flex-row gap-6">
-            {" "}
-            {/* Search */}{" "}
+        {/* Filters */}
+        <div className="bg-white rounded-xl md:rounded-2xl shadow-lg border border-slate-200 p-4 md:p-6 mb-6 md:mb-8">
+          <div className="flex flex-col space-y-4 md:space-y-0 md:flex-row md:gap-6">
+            {/* Search */}
             <div className="flex-1">
-              {" "}
               <label className="block text-sm font-medium text-slate-700 mb-2">
-                {" "}
-                Search Words{" "}
-              </label>{" "}
+                Search Words
+              </label>
               <div className="relative">
-                {" "}
                 <input
                   type="text"
                   placeholder="Type to search words..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full p-3 border-2 border-slate-200 rounded-xl focus:border-blue-500 bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all"
-                />{" "}
+                  className="w-full p-3 border-2 border-slate-200 rounded-lg md:rounded-xl focus:border-blue-500 bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all"
+                />
                 {searchTerm && (
                   <button
                     onClick={() => setSearchTerm("")}
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600"
                   >
-                    {" "}
                     <svg
                       className="w-5 h-5"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
                     >
-                      {" "}
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
                         strokeWidth={2}
                         d="M6 18L18 6M6 6l12 12"
-                      />{" "}
-                    </svg>{" "}
+                      />
+                    </svg>
                   </button>
-                )}{" "}
-              </div>{" "}
-            </div>{" "}
-            {/* Alphabet Filter */}{" "}
-            <div className="lg:w-64">
-              {" "}
+                )}
+              </div>
+            </div>
+            {/* Alphabet Filter */}
+            <div className="md:w-64">
               <label className="block text-sm font-medium text-slate-700 mb-2">
-                {" "}
-                Filter by Letter{" "}
-              </label>{" "}
+                Filter by Letter
+              </label>
               <select
                 value={selectedAlphabet}
                 onChange={(e) => setSelectedAlphabet(e.target.value)}
-                className="w-full p-3 border-2 border-slate-200 rounded-xl focus:border-blue-500 bg-white text-slate-800 focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all"
+                className="w-full p-3 border-2 border-slate-200 rounded-lg md:rounded-xl focus:border-blue-500 bg-white text-slate-800 focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all"
               >
-                {" "}
-                <option value="">All Letters</option>{" "}
+                <option value="">All Letters</option>
                 {alphabetOptions.map(({ letter, count }) => (
                   <option key={letter} value={letter}>
-                    {" "}
-                    {letter} ({count} words){" "}
+                    {letter} ({count} words)
                   </option>
-                ))}{" "}
-              </select>{" "}
-            </div>{" "}
-            {/* Clear Filters */}{" "}
+                ))}
+              </select>
+            </div>
+            {/* Clear Filters */}
             {(searchTerm || selectedAlphabet) && (
-              <div className="flex items-end">
-                {" "}
+              <div className="flex items-end md:items-end">{" "}
                 <button
                   onClick={clearFilters}
-                  className="px-4 py-3 bg-slate-100 text-slate-600 rounded-xl hover:bg-slate-200 transition-all"
+                  className="w-full md:w-auto px-4 py-3 bg-slate-100 text-slate-600 rounded-lg md:rounded-xl hover:bg-slate-200 transition-all"
                 >
-                  {" "}
-                  Clear Filters{" "}
-                </button>{" "}
+                  Clear Filters
+                </button>
               </div>
-            )}{" "}
-          </div>{" "}
-          {/* Results count */}{" "}
+            )}
+          </div>
+          {/* Results count */}
           <div className="mt-4 text-sm text-slate-600">
-            {" "}
-            Showing {filteredWords.length} of {spellingWords.length} words{" "}
-          </div>{" "}
-        </div>{" "}
-        {/* Words Grid */}{" "}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {" "}
+            Showing {filteredWords.length} of {spellingWords.length} words
+          </div>
+        </div>
+        {/* Words Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
           {filteredWords.map((word, index) => (
             <div
               key={`${word}-${index}`}
-              className="group bg-white rounded-2xl shadow-lg border border-slate-200 p-4 hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+              className="group bg-white rounded-xl md:rounded-2xl shadow-lg border border-slate-200 p-3 md:p-4 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 active:scale-95"
             >
-              {" "}
-              <div className="flex items-center justify-between mb-3">
-                {" "}
-                <span className="text-lg font-semibold text-slate-800">
-                  {" "}
-                  {word}{" "}
-                </span>{" "}
+              <div className="flex items-center justify-between mb-2 md:mb-3">
+                <span className="text-base md:text-lg font-semibold text-slate-800">
+                  {word}
+                </span>
                 <button
                   onClick={() => speakWord(word)}
-                  className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center hover:bg-blue-200 transition-all group-hover:scale-110"
+                  className="w-7 h-7 md:w-8 md:h-8 bg-blue-100 rounded-lg flex items-center justify-center hover:bg-blue-200 transition-all group-hover:scale-110"
                   title="Pronounce word"
                 >
-                  {" "}
                   <svg
-                    className="w-4 h-4 text-blue-600"
+                    className="w-3 h-3 md:w-4 md:h-4 text-blue-600"
                     fill="currentColor"
                     viewBox="0 0 24 24"
                   >

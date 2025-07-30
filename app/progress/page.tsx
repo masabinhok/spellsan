@@ -98,25 +98,25 @@ export default function Progress() {
 
   return (
     <div className="bg-slate-50 min-h-screen">
-      <div className="container mx-auto px-4 py-12 max-w-7xl">
+      <div className="container mx-auto px-4 py-6 md:py-12 max-w-7xl">
         {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-slate-800 mb-4">
+        <div className="text-center mb-8 md:mb-12">
+          <h1 className="text-3xl md:text-4xl font-bold text-slate-800 mb-3 md:mb-4">
             Your Progress
           </h1>
-          <p className="text-xl text-slate-600 max-w-2xl mx-auto">
+          <p className="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto px-4">
             Track your spelling journey and see how far you've come
           </p>
         </div>
 
         {/* Time Period Selector */}
-        <div className="flex justify-center mb-8">
-          <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-2 flex">
+        <div className="flex justify-center mb-6 md:mb-8">
+          <div className="bg-white rounded-xl md:rounded-2xl shadow-lg border border-slate-200 p-1 md:p-2 flex">
             {(['week', 'month', 'all'] as const).map(period => (
               <button
                 key={period}
                 onClick={() => setSelectedPeriod(period)}
-                className={`px-6 py-2 rounded-xl transition-all ${selectedPeriod === period
+                className={`px-4 md:px-6 py-2 rounded-lg md:rounded-xl transition-all text-sm md:text-base ${selectedPeriod === period
                   ? 'bg-blue-600 text-white'
                   : 'text-slate-600 hover:bg-slate-100'
                   }`}
@@ -128,7 +128,7 @@ export default function Progress() {
         </div>
 
         {/* Main Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 mb-8 md:mb-12">
           <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-6">
             <div className="flex items-center justify-between">
               <div>

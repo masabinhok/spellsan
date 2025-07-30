@@ -85,84 +85,84 @@ export default function Dashboard() {
 
   return (
     <div className="bg-slate-50 min-h-screen">
-      <div className="container mx-auto px-4 py-12 max-w-7xl">
+      <div className="container mx-auto px-4 py-6 md:py-12 max-w-7xl">
         {/* Hero Section */}
-        <div className="text-center mb-12">
-          <h1 className="text-5xl font-bold text-slate-800 mb-4">
+        <div className="text-center mb-8 md:mb-12">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-800 mb-4">
             Welcome to SpellSAN
           </h1>
-          <p className="text-xl text-slate-600 max-w-2xl mx-auto">
+          <p className="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto px-4">
             Master spelling for the SAN competition with our comprehensive
             practice platform
           </p>
         </div>
 
         {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
-          <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mb-8 md:mb-12">
+          <div className="bg-white rounded-xl md:rounded-2xl shadow-lg border border-slate-200 p-4 md:p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-slate-600">
+                <p className="text-xs md:text-sm text-slate-600">
                   Total Words
                 </p>
-                <p className="text-3xl font-bold text-slate-800">
+                <p className="text-xl md:text-3xl font-bold text-slate-800">
                   {stats.totalWords}
                 </p>
               </div>
-              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-8 h-8 md:w-12 md:h-12 bg-blue-100 rounded-lg md:rounded-xl flex items-center justify-center">
+                <svg className="w-4 h-4 md:w-6 md:h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-6">
+          <div className="bg-white rounded-xl md:rounded-2xl shadow-lg border border-slate-200 p-4 md:p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-slate-600">
+                <p className="text-xs md:text-sm text-slate-600">
                   Practice Today
                 </p>
-                <p className="text-3xl font-bold text-slate-800">
+                <p className="text-xl md:text-3xl font-bold text-slate-800">
                   {stats.practiceToday}
                 </p>
               </div>
-              <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
-                <svg className="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-8 h-8 md:w-12 md:h-12 bg-emerald-100 rounded-lg md:rounded-xl flex items-center justify-center">
+                <svg className="w-4 h-4 md:w-6 md:h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-6">
+          <div className="bg-white rounded-xl md:rounded-2xl shadow-lg border border-slate-200 p-4 md:p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-slate-600">
+                <p className="text-xs md:text-sm text-slate-600">
                   Accuracy
                 </p>
-                <p className="text-3xl font-bold text-slate-800">
+                <p className="text-xl md:text-3xl font-bold text-slate-800">
                   {stats.accuracy}%
                 </p>
               </div>
-              <div className="w-12 h-12 bg-violet-100 rounded-xl flex items-center justify-center">
-                <svg className="w-6 h-6 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-8 h-8 md:w-12 md:h-12 bg-violet-100 rounded-lg md:rounded-xl flex items-center justify-center">
+                <svg className="w-4 h-4 md:w-6 md:h-6 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-6">
+          <div className="bg-white rounded-xl md:rounded-2xl shadow-lg border border-slate-200 p-4 md:p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-slate-600">Streak</p>
-                <p className="text-3xl font-bold text-slate-800">
+                <p className="text-xs md:text-sm text-slate-600">Streak</p>
+                <p className="text-xl md:text-3xl font-bold text-slate-800">
                   {stats.streak}
                 </p>
               </div>
-              <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center">
-                <svg className="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-8 h-8 md:w-12 md:h-12 bg-amber-100 rounded-lg md:rounded-xl flex items-center justify-center">
+                <svg className="w-4 h-4 md:w-6 md:h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" />
                 </svg>
               </div>
@@ -171,26 +171,26 @@ export default function Dashboard() {
         </div>
 
         {/* Quick Actions */}
-        <div className="mb-12">
-          <h2 className="text-3xl font-bold text-slate-800 mb-8 text-center">
+        <div className="mb-8 md:mb-12">
+          <h2 className="text-2xl md:text-3xl font-bold text-slate-800 mb-6 md:mb-8 text-center">
             Quick Actions
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
             {quickActions.map((action, index) => (
               <Link
                 key={index}
                 href={action.href}
-                className={`group bg-white rounded-2xl shadow-lg border ${action.borderColor} p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1`}
+                className={`group bg-white rounded-xl md:rounded-2xl shadow-lg border ${action.borderColor} p-4 md:p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 active:scale-95`}
               >
                 <div
-                  className={`w-12 h-12 ${action.bgColor} rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}
+                  className={`w-10 h-10 md:w-12 md:h-12 ${action.bgColor} rounded-lg md:rounded-xl flex items-center justify-center mb-3 md:mb-4 group-hover:scale-110 transition-transform`}
                 >
                   <span className={action.iconColor}>{action.icon}</span>
                 </div>
-                <h3 className="text-xl font-bold text-slate-800 mb-2">
+                <h3 className="text-lg md:text-xl font-bold text-slate-800 mb-2">
                   {action.title}
                 </h3>
-                <p className="text-slate-600">
+                <p className="text-sm md:text-base text-slate-600">
                   {action.description}
                 </p>
               </Link>
@@ -199,21 +199,21 @@ export default function Dashboard() {
         </div>
 
         {/* Alphabet Overview */}
-        <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-8">
-          <h2 className="text-2xl font-bold text-slate-800 mb-6">
+        <div className="bg-white rounded-xl md:rounded-2xl shadow-lg border border-slate-200 p-4 md:p-8">
+          <h2 className="text-xl md:text-2xl font-bold text-slate-800 mb-4 md:mb-6">
             Words by Alphabet
           </h2>
-          <div className="grid grid-cols-6 md:grid-cols-13 gap-3">
+          <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-13 gap-2 md:gap-3">
             {alphabetStats.map(({ letter, count }) => (
               <Link
                 key={letter}
                 href={`/practice?alphabet=${letter.toLowerCase()}`}
-                className="group bg-slate-50 rounded-xl p-4 text-center hover:bg-blue-50 hover:shadow-md transition-all duration-200 hover:scale-105 border border-slate-200 hover:border-blue-300"
+                className="group bg-slate-50 rounded-lg md:rounded-xl p-2 md:p-4 text-center hover:bg-blue-50 hover:shadow-md transition-all duration-200 hover:scale-105 border border-slate-200 hover:border-blue-300 active:scale-95"
               >
-                <div className="text-2xl font-bold text-slate-700 group-hover:text-blue-600 mb-1 transition-colors">
+                <div className="text-lg md:text-2xl font-bold text-slate-700 group-hover:text-blue-600 mb-1 transition-colors">
                   {letter}
                 </div>
-                <div className="text-sm text-slate-500 group-hover:text-blue-500 transition-colors">
+                <div className="text-xs md:text-sm text-slate-500 group-hover:text-blue-500 transition-colors">
                   {count} words
                 </div>
               </Link>

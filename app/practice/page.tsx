@@ -146,405 +146,342 @@ export default function Practice() {
   if (isGameActive) {
     return (
       <div className="bg-slate-50 min-h-screen">
-        {" "}
-        <div className="container mx-auto px-4 py-12 max-w-4xl">
-          {" "}
-          <div className="bg-white rounded-3xl shadow-xl border border-slate-200 p-8">
-            {" "}
-            {/* Game Header */}{" "}
-            <div className="flex justify-between items-center mb-8">
-              {" "}
-              <div className="flex items-center space-x-3">
-                {" "}
-                <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center">
-                  {" "}
+        <div className="container mx-auto px-4 py-6 md:py-12 max-w-4xl">
+          <div className="bg-white rounded-2xl md:rounded-3xl shadow-xl border border-slate-200 p-4 md:p-8">
+            {/* Game Header */}
+            <div className="flex justify-between items-start md:items-center mb-6 md:mb-8">
+              <div className="flex items-start md:items-center space-x-3">
+                <div className="w-8 h-8 md:w-10 md:h-10 bg-blue-600 rounded-lg md:rounded-xl flex items-center justify-center flex-shrink-0">
                   {mode === "random" ? (
                     <svg
-                      className="w-5 h-5 text-white"
+                      className="w-4 h-4 md:w-5 md:h-5 text-white"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
                     >
-                      {" "}
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
                         strokeWidth={2}
                         d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                      />{" "}
+                      />
                     </svg>
                   ) : (
                     <svg
-                      className="w-5 h-5 text-white"
+                      className="w-4 h-4 md:w-5 md:h-5 text-white"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
                     >
-                      {" "}
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
                         strokeWidth={2}
                         d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
-                      />{" "}
+                      />
                     </svg>
-                  )}{" "}
-                </div>{" "}
+                  )}
+                </div>
                 <div>
-                  {" "}
-                  <h2 className="text-2xl font-bold text-slate-800">
-                    {" "}
+                  <h2 className="text-lg md:text-2xl font-bold text-slate-800">
                     {mode === "random"
                       ? "Random Practice"
-                      : `Letter "${selectedAlphabet}" Practice`}{" "}
-                  </h2>{" "}
-                  <p className="text-sm text-slate-600">
-                    {" "}
-                    {availableWords.length} words available{" "}
-                  </p>{" "}
-                </div>{" "}
-              </div>{" "}
+                      : `Letter "${selectedAlphabet}" Practice`}
+                  </h2>
+                  <p className="text-xs md:text-sm text-slate-600">
+                    {availableWords.length} words available
+                  </p>
+                </div>
+              </div>
               <button
                 onClick={resetGame}
-                className="flex items-center space-x-2 px-4 py-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition-all"
+                className="flex items-center space-x-1 md:space-x-2 px-3 md:px-4 py-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg md:rounded-xl transition-all"
               >
-                {" "}
                 <svg
-                  className="w-5 h-5"
+                  className="w-4 h-4 md:w-5 md:h-5"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
                 >
-                  {" "}
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth={2}
                     d="M6 18L18 6M6 6l12 12"
-                  />{" "}
-                </svg>{" "}
-                <span>Exit</span>{" "}
-              </button>{" "}
-            </div>{" "}
-            {/* Progress Stats */}{" "}
-            <div className="bg-blue-50 rounded-2xl p-6 mb-8 border border-blue-100">
-              {" "}
-              <div className="flex justify-between items-center mb-4">
-                {" "}
-                <h3 className="font-semibold text-slate-800">
+                  />
+                </svg>
+                <span className="text-sm md:text-base">Exit</span>
+              </button>
+            </div>
+            {/* Progress Stats */}
+            <div className="bg-blue-50 rounded-xl md:rounded-2xl p-4 md:p-6 mb-6 md:mb-8 border border-blue-100">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-3 md:mb-4">
+                <h3 className="font-semibold text-slate-800 mb-2 sm:mb-0">
                   Your Progress
-                </h3>{" "}
+                </h3>
                 <span className="text-sm text-slate-600">
-                  {" "}
                   {stats.total > 0
                     ? Math.round((stats.correct / stats.total) * 100)
                     : 0}
-                  % Accuracy{" "}
-                </span>{" "}
-              </div>{" "}
-              <div className="flex items-center space-x-6 text-sm">
-                {" "}
+                  % Accuracy
+                </span>
+              </div>
+              <div className="flex flex-wrap items-center gap-3 md:gap-6 text-xs md:text-sm">
                 <div className="flex items-center space-x-2">
-                  {" "}
-                  <div className="w-3 h-3 bg-blue-500 rounded-full"></div>{" "}
+                  <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
                   <span className="text-slate-700">
                     Words: {stats.total}
-                  </span>{" "}
-                </div>{" "}
+                  </span>
+                </div>
                 <div className="flex items-center space-x-2">
-                  {" "}
-                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>{" "}
+                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
                   <span className="text-slate-700">
                     Correct: {stats.correct}
-                  </span>{" "}
-                </div>{" "}
+                  </span>
+                </div>
                 <div className="flex items-center space-x-2">
-                  {" "}
-                  <div className="w-3 h-3 bg-red-500 rounded-full"></div>{" "}
+                  <div className="w-3 h-3 bg-red-500 rounded-full"></div>
                   <span className="text-slate-700">
                     Incorrect: {stats.incorrect}
-                  </span>{" "}
-                </div>{" "}
-              </div>{" "}
-              <div className="mt-4">
-                {" "}
+                  </span>
+                </div>
+              </div>
+              <div className="mt-3 md:mt-4">
                 <div className="w-full bg-slate-200 rounded-full h-2">
-                  {" "}
                   <div
                     className="bg-blue-600 h-2 rounded-full transition-all duration-500"
                     style={{
                       width: `${stats.total > 0 ? (stats.correct / stats.total) * 100 : 0}%`,
                     }}
-                  ></div>{" "}
-                </div>{" "}
-              </div>{" "}
-            </div>{" "}
+                  ></div>
+                </div>
+              </div>
+            </div>
             {!gameComplete ? (
-              <div className="text-center space-y-8">
-                {" "}
-                {/* Audio Button */}{" "}
-                <div className="space-y-4">
-                  {" "}
+              <div className="text-center space-y-6 md:space-y-8">
+                {/* Audio Button */}
+                <div className="space-y-3 md:space-y-4">
                   <button
                     onClick={speakWord}
-                    className="group bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-8 rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-blue-100"
+                    className="group bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 md:py-4 md:px-8 rounded-xl md:rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-blue-100 active:scale-95"
                   >
-                    {" "}
-                    <div className="flex items-center space-x-3">
-                      {" "}
+                    <div className="flex items-center space-x-2 md:space-x-3">
                       <svg
-                        className="w-6 h-6 group-hover:scale-110 transition-transform"
+                        className="w-5 h-5 md:w-6 md:h-6 group-hover:scale-110 transition-transform"
                         fill="currentColor"
                         viewBox="0 0 24 24"
                       >
-                        {" "}
-                        <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />{" "}
-                      </svg>{" "}
-                      <span>Hear Word</span>{" "}
-                    </div>{" "}
-                  </button>{" "}
-                  {showAnswer && (
-                    <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-4">
-                      {" "}
-                      <p className="text-sm text-yellow-800 mb-2">
-                        Correct Spelling:
-                      </p>{" "}
-                      <div className="text-2xl font-bold text-yellow-900 tracking-wider">
-                        {" "}
-                        {currentWord}{" "}
-                      </div>{" "}
+                        <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
+                      </svg>
+                      <span className="text-sm md:text-base">Hear Word</span>
                     </div>
-                  )}{" "}
-                </div>{" "}
-                {/* Input Field */}{" "}
-                <div className="space-y-4">
-                  {" "}
+                  </button>
+                  {showAnswer && (
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-xl md:rounded-2xl p-3 md:p-4">
+                      <p className="text-xs md:text-sm text-yellow-800 mb-2">
+                        Correct Spelling:
+                      </p>
+                      <div className="text-xl md:text-2xl font-bold text-yellow-900 tracking-wider">
+                        {currentWord}
+                      </div>
+                    </div>
+                  )}
+                </div>
+                {/* Input Field */}
+                <div className="space-y-3 md:space-y-4">
                   <input
                     type="text"
                     value={userInput}
                     onChange={(e) => setUserInput(e.target.value)}
                     onKeyPress={handleKeyPress}
                     placeholder="Type the spelling here..."
-                    className="w-full p-6 text-xl text-center border-2 border-slate-200 rounded-2xl focus:border-blue-500 bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all disabled:opacity-50"
+                    className="w-full p-4 md:p-6 text-lg md:text-xl text-center border-2 border-slate-200 rounded-xl md:rounded-2xl focus:border-blue-500 bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all disabled:opacity-50"
                     disabled={!!feedback}
                     autoFocus
-                  />{" "}
-                </div>{" "}
+                  />
+                </div>
                 {feedback ? (
                   <div
-                    className={`p-6 rounded-2xl border-2 ${feedback.includes("Correct") ? "bg-green-50 border-green-200" : "bg-red-50 border-red-200"}`}
+                    className={`p-4 md:p-6 rounded-xl md:rounded-2xl border-2 ${feedback.includes("Correct")
+                        ? "bg-green-50 border-green-200"
+                        : "bg-red-50 border-red-200"
+                      }`}
                   >
-                    {" "}
                     <div className="flex items-center justify-center space-x-3 mb-2">
-                      {" "}
                       <div
-                        className={`w-10 h-10 rounded-full flex items-center justify-center ${feedback.includes("Correct") ? "bg-green-500" : "bg-red-500"}`}
+                        className={`w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center ${feedback.includes("Correct") ? "bg-green-500" : "bg-red-500"
+                          }`}
                       >
-                        {" "}
-                        <span className="text-white text-xl">
-                          {" "}
-                          {feedback.includes("Correct") ? "✓" : "✗"}{" "}
-                        </span>{" "}
-                      </div>{" "}
-                    </div>{" "}
+                        <span className="text-white text-lg md:text-xl">
+                          {feedback.includes("Correct") ? "✓" : "✗"}
+                        </span>
+                      </div>
+                    </div>
                     <div
-                      className={`text-lg font-semibold ${feedback.includes("Correct") ? "text-green-800" : "text-red-800"}`}
+                      className={`text-base md:text-lg font-semibold ${feedback.includes("Correct") ? "text-green-800" : "text-red-800"
+                        }`}
                     >
-                      {" "}
-                      {feedback}{" "}
-                    </div>{" "}
+                      {feedback}
+                    </div>
                   </div>
                 ) : (
                   <button
                     onClick={checkSpelling}
                     disabled={!userInput.trim()}
-                    className="bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 text-white font-bold py-4 px-10 rounded-2xl transition-all duration-300 transform hover:scale-105 disabled:hover:scale-100 shadow-lg hover:shadow-xl disabled:shadow-md focus:outline-none focus:ring-4 focus:ring-blue-100 disabled:cursor-not-allowed"
+                    className="bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 text-white font-bold py-3 px-6 md:py-4 md:px-10 rounded-xl md:rounded-2xl transition-all duration-300 transform hover:scale-105 disabled:hover:scale-100 shadow-lg hover:shadow-xl disabled:shadow-md focus:outline-none focus:ring-4 focus:ring-blue-100 disabled:cursor-not-allowed active:scale-95"
                   >
-                    {" "}
                     <div className="flex items-center space-x-2">
-                      {" "}
-                      <span>Check Spelling</span>{" "}
+                      <span className="text-sm md:text-base">Check Spelling</span>
                       <svg
-                        className="w-5 h-5"
+                        className="w-4 h-4 md:w-5 md:h-5"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
                       >
-                        {" "}
                         <path
                           strokeLinecap="round"
                           strokeLinejoin="round"
                           strokeWidth={2}
                           d="M9 12l2 2 4-4"
-                        />{" "}
-                      </svg>{" "}
-                    </div>{" "}
+                        />
+                      </svg>
+                    </div>
                   </button>
-                )}{" "}
+                )}
               </div>
             ) : (
-              <div className="text-center space-y-8">
-                {" "}
-                <div className="bg-yellow-50 rounded-3xl p-8 border-2 border-yellow-200">
-                  {" "}
-                  <div className="text-6xl mb-4">🎉</div>{" "}
-                  <h3 className="text-3xl font-bold text-slate-800 mb-4">
-                    {" "}
-                    Excellent Work!{" "}
-                  </h3>{" "}
-                  <div className="text-xl text-slate-700 mb-6">
-                    {" "}
-                    {feedback}{" "}
-                  </div>{" "}
-                  <div className="grid grid-cols-3 gap-4 mb-6">
-                    {" "}
-                    <div className="bg-white/50 rounded-2xl p-4">
-                      {" "}
-                      <div className="text-2xl font-bold text-blue-600">
+              <div className="text-center space-y-6 md:space-y-8">
+                <div className="bg-yellow-50 rounded-2xl md:rounded-3xl p-4 md:p-8 border-2 border-yellow-200">
+                  <div className="text-4xl md:text-6xl mb-3 md:mb-4">🎉</div>
+                  <h3 className="text-2xl md:text-3xl font-bold text-slate-800 mb-3 md:mb-4">
+                    Excellent Work!
+                  </h3>
+                  <div className="text-lg md:text-xl text-slate-700 mb-4 md:mb-6">
+                    {feedback}
+                  </div>
+                  <div className="grid grid-cols-3 gap-2 md:gap-4 mb-4 md:mb-6">
+                    <div className="bg-white/50 rounded-xl md:rounded-2xl p-3 md:p-4">
+                      <div className="text-lg md:text-2xl font-bold text-blue-600">
                         {stats.total}
-                      </div>{" "}
-                      <div className="text-sm text-slate-600">
+                      </div>
+                      <div className="text-xs md:text-sm text-slate-600">
                         Words Practiced
-                      </div>{" "}
-                    </div>{" "}
-                    <div className="bg-white/50 rounded-2xl p-4">
-                      {" "}
-                      <div className="text-2xl font-bold text-green-600">
+                      </div>
+                    </div>
+                    <div className="bg-white/50 rounded-xl md:rounded-2xl p-3 md:p-4">
+                      <div className="text-lg md:text-2xl font-bold text-green-600">
                         {stats.correct}
-                      </div>{" "}
-                      <div className="text-sm text-slate-600">Correct</div>{" "}
-                    </div>{" "}
-                    <div className="bg-white/50 rounded-2xl p-4">
-                      {" "}
-                      <div className="text-2xl font-bold text-blue-600">
-                        {" "}
+                      </div>
+                      <div className="text-xs md:text-sm text-slate-600">Correct</div>
+                    </div>
+                    <div className="bg-white/50 rounded-xl md:rounded-2xl p-3 md:p-4">
+                      <div className="text-lg md:text-2xl font-bold text-blue-600">
                         {stats.total > 0
                           ? Math.round((stats.correct / stats.total) * 100)
                           : 0}
-                        %{" "}
-                      </div>{" "}
-                      <div className="text-sm text-slate-600">
+                        %
+                      </div>
+                      <div className="text-xs md:text-sm text-slate-600">
                         Accuracy
-                      </div>{" "}
-                    </div>{" "}
-                  </div>{" "}
-                </div>{" "}
-                <div className="flex gap-4 justify-center">
-                  {" "}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center">
                   <button
                     onClick={() => startPractice(mode!, selectedAlphabet)}
-                    className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-blue-100"
+                    className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 md:px-8 rounded-xl md:rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-blue-100 active:scale-95"
                   >
-                    {" "}
-                    Practice Again{" "}
-                  </button>{" "}
+                    Practice Again
+                  </button>
                   <Link
                     href="/"
-                    className="bg-slate-200 text-slate-700 font-bold py-3 px-8 rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                    className="bg-slate-200 text-slate-700 font-bold py-3 px-6 md:px-8 rounded-xl md:rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl text-center"
                   >
-                    {" "}
-                    Back to Dashboard{" "}
-                  </Link>{" "}
-                </div>{" "}
+                    Back to Dashboard
+                  </Link>
+                </div>
               </div>
-            )}{" "}
-          </div>{" "}
-        </div>{" "}
+            )}
+          </div>
+        </div>
       </div>
     );
   }
   return (
     <div className="bg-slate-50 min-h-screen">
-      {" "}
-      <div className="container mx-auto px-4 py-12 max-w-6xl">
-        {" "}
-        {/* Header */}{" "}
-        <div className="text-center mb-12">
-          {" "}
-          <h1 className="text-4xl font-bold text-slate-800 mb-4">
-            {" "}
-            Practice Spelling{" "}
-          </h1>{" "}
-          <p className="text-xl text-slate-600 max-w-2xl mx-auto">
-            {" "}
+      <div className="container mx-auto px-4 py-6 md:py-12 max-w-6xl">
+        {/* Header */}
+        <div className="text-center mb-8 md:mb-12">
+          <h1 className="text-3xl md:text-4xl font-bold text-slate-800 mb-3 md:mb-4">
+            Practice Spelling
+          </h1>
+          <p className="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto px-4">
             Choose your practice mode: random words or focus on specific
-            letters{" "}
-          </p>{" "}
-        </div>{" "}
-        {/* Practice Options */}{" "}
-        <div className="grid md:grid-cols-2 gap-8 mb-12">
-          {" "}
-          {/* Random Practice */}{" "}
-          <div className="bg-white rounded-3xl shadow-xl border border-slate-200 p-8">
-            {" "}
+            letters
+          </p>
+        </div>
+        {/* Practice Options */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 mb-8 md:mb-12">
+          {/* Random Practice */}
+          <div className="bg-white rounded-2xl md:rounded-3xl shadow-xl border border-slate-200 p-6 md:p-8">
             <div className="text-center">
-              {" "}
-              <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mb-6 mx-auto">
-                {" "}
+              <div className="w-12 h-12 md:w-16 md:h-16 bg-blue-600 rounded-xl md:rounded-2xl flex items-center justify-center mb-4 md:mb-6 mx-auto">
                 <svg
-                  className="w-8 h-8 text-white"
+                  className="w-6 h-6 md:w-8 md:h-8 text-white"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
                 >
-                  {" "}
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth={2}
                     d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  />{" "}
-                </svg>{" "}
-              </div>{" "}
-              <h2 className="text-2xl font-bold text-slate-800 mb-4">
+                  />
+                </svg>
+              </div>
+              <h2 className="text-xl md:text-2xl font-bold text-slate-800 mb-3 md:mb-4">
                 Random Practice
-              </h2>{" "}
-              <p className="text-slate-600 mb-8">
-                {" "}
+              </h2>
+              <p className="text-sm md:text-base text-slate-600 mb-6 md:mb-8">
                 Practice with randomly selected words from the entire word list.
-                Great for comprehensive review!{" "}
-              </p>{" "}
+                Great for comprehensive review!
+              </p>
               <button
                 onClick={() => startPractice("random")}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-8 rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-blue-100"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 md:py-4 md:px-8 rounded-xl md:rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-blue-100 active:scale-95"
               >
-                {" "}
-                Start Random Practice{" "}
-              </button>{" "}
-            </div>{" "}
-          </div>{" "}
-          {/* Alphabet Practice */}{" "}
-          <div className="bg-white rounded-3xl shadow-xl border border-slate-200 p-8">
-            {" "}
+                Start Random Practice
+              </button>
+            </div>
+          </div>
+          {/* Alphabet Practice */}
+          <div className="bg-white rounded-2xl md:rounded-3xl shadow-xl border border-slate-200 p-6 md:p-8">
             <div className="text-center">
-              {" "}
-              <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mb-6 mx-auto">
-                {" "}
+              <div className="w-12 h-12 md:w-16 md:h-16 bg-blue-600 rounded-xl md:rounded-2xl flex items-center justify-center mb-4 md:mb-6 mx-auto">
                 <svg
-                  className="w-8 h-8 text-white"
+                  className="w-6 h-6 md:w-8 md:h-8 text-white"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
                 >
-                  {" "}
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth={2}
                     d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
-                  />{" "}
-                </svg>{" "}
-              </div>{" "}
-              <h2 className="text-2xl font-bold text-slate-800 mb-4">
+                  />
+                </svg>
+              </div>
+              <h2 className="text-xl md:text-2xl font-bold text-slate-800 mb-3 md:mb-4">
                 Alphabet Practice
-              </h2>{" "}
-              <p className="text-slate-600 mb-8">
-                {" "}
+              </h2>
+              <p className="text-sm md:text-base text-slate-600 mb-6 md:mb-8">
                 Focus on words starting with specific letters. Perfect for
-                targeted practice!{" "}
-              </p>{" "}
-              <div className="space-y-4">
-                {" "}
+                targeted practice!
+              </p>
+              <div className="space-y-3 md:space-y-4">
                 <select
                   value={selectedAlphabet}
                   onChange={(e) => setSelectedAlphabet(e.target.value)}
