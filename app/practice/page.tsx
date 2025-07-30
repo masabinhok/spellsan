@@ -4,6 +4,7 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import spellingWords from "../../clean_spelling_words.json";
 import AudioButton from "../components/AudioButton";
+import { useAudioPlayer } from "../hooks/useAudioPlayer";
 
 interface GameStats {
   correct: number;
@@ -13,6 +14,7 @@ interface GameStats {
 
 function PracticeComponent() {
   const searchParams = useSearchParams();
+  const { playWord } = useAudioPlayer();
   const [mode, setMode] = useState<"random" | "alphabet" | null>(null);
   const [selectedAlphabet, setSelectedAlphabet] = useState("");
   const [currentWord, setCurrentWord] = useState("");
@@ -28,6 +30,7 @@ function PracticeComponent() {
   const [usedWords, setUsedWords] = useState<string[]>([]);
   const [gameComplete, setGameComplete] = useState(false);
   const [availableWords, setAvailableWords] = useState<string[]>([]);
+  const [shouldAutoPlay, setShouldAutoPlay] = useState(false);
   useEffect(() => {
     const modeParam = searchParams.get("mode");
     const alphabetParam = searchParams.get("alphabet");
@@ -43,6 +46,17 @@ function PracticeComponent() {
       setAvailableWords(wordsForAlphabet);
     }
   }, [searchParams]);
+
+  // Auto-play word when it changes after user submits an answer
+  useEffect(() => {
+    if (currentWord && shouldAutoPlay && isGameActive && !gameComplete) {
+      const timer = setTimeout(() => {
+        playWord(currentWord);
+        setShouldAutoPlay(false);
+      }, 100); // Small delay to ensure word is set
+      return () => clearTimeout(timer);
+    }
+  }, [currentWord, shouldAutoPlay, isGameActive, gameComplete, playWord]);
   const alphabetOptions = Array.from({ length: 26 }, (_, i) => {
     const letter = String.fromCharCode(65 + i);
     const count = spellingWords.filter(
@@ -84,6 +98,7 @@ function PracticeComponent() {
     setFeedback("");
     setShowAnswer(false);
     setUserInput("");
+    setShouldAutoPlay(false); // Don't auto-play the first word
     if (words.length > 0) {
       const randomIndex = Math.floor(Math.random() * words.length);
       setCurrentWord(words[randomIndex]);
@@ -95,6 +110,7 @@ function PracticeComponent() {
     if (word) {
       setCurrentWord(word);
       setUsedWords((prev) => [...prev, word]);
+      setShouldAutoPlay(true); // Enable auto-play for the new word
     }
     setUserInput("");
     setFeedback("");
@@ -135,6 +151,7 @@ function PracticeComponent() {
     setUsedWords([]);
     setShowAnswer(false);
     setMode(null);
+    setShouldAutoPlay(false);
   };
   useEffect(() => {
     if (gameComplete) {
