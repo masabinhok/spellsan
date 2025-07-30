@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import spellingWords from '../../spelling_words.json';
+import { speakWordInBritishEnglish } from '../utils/speech';
 
 interface GameStats {
   correct: number;
@@ -140,11 +141,7 @@ export default function Practice() {
   };
 
   const speakWord = () => {
-    if ('speechSynthesis' in window) {
-      const utterance = new SpeechSynthesisUtterance(currentWord);
-      utterance.rate = 0.7;
-      speechSynthesis.speak(utterance);
-    }
+    speakWordInBritishEnglish(currentWord);
   };
 
   const resetGame = () => {
@@ -284,8 +281,8 @@ export default function Practice() {
 
               {feedback ? (
                 <div className={`p-6 rounded-2xl border-2 ${feedback.includes('Correct')
-                    ? 'bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-green-200 dark:border-green-700'
-                    : 'bg-gradient-to-r from-red-50 to-rose-50 dark:from-red-900/20 dark:to-rose-900/20 border-red-200 dark:border-red-700'
+                  ? 'bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-green-200 dark:border-green-700'
+                  : 'bg-gradient-to-r from-red-50 to-rose-50 dark:from-red-900/20 dark:to-rose-900/20 border-red-200 dark:border-red-700'
                   }`}>
                   <div className="flex items-center justify-center space-x-3 mb-2">
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center ${feedback.includes('Correct') ? 'bg-green-500' : 'bg-red-500'
@@ -296,8 +293,8 @@ export default function Practice() {
                     </div>
                   </div>
                   <div className={`text-lg font-semibold ${feedback.includes('Correct')
-                      ? 'text-green-800 dark:text-green-200'
-                      : 'text-red-800 dark:text-red-200'
+                    ? 'text-green-800 dark:text-green-200'
+                    : 'text-red-800 dark:text-red-200'
                     }`}>
                     {feedback}
                   </div>

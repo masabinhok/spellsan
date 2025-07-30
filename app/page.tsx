@@ -22,7 +22,7 @@ export default function Dashboard() {
 
   const alphabetStats = Array.from({ length: 26 }, (_, i) => {
     const letter = String.fromCharCode(65 + i);
-    const wordsForLetter = spellingWords.filter(word => 
+    const wordsForLetter = spellingWords.filter(word =>
       word.charAt(0).toUpperCase() === letter
     ).length;
     return { letter, count: wordsForLetter };
@@ -67,7 +67,7 @@ export default function Dashboard() {
           Welcome to SpellSAN
         </h1>
         <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-          Master spelling for the SAN competition with our comprehensive practice platform
+          Master spelling for the SAN competition with our comprehensive practice platform featuring British English pronunciation
         </p>
       </div>
 

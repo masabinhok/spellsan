@@ -11,6 +11,7 @@ const Navigation = () => {
     { href: '/learn', label: 'Learn Words', icon: '📚' },
     { href: '/practice', label: 'Practice', icon: '✏️' },
     { href: '/progress', label: 'Progress', icon: '📈' },
+    { href: '/voice-settings', label: 'Voice Settings', icon: '🔊' },
   ];
 
   return (
@@ -39,8 +40,8 @@ const Navigation = () => {
                 key={item.href}
                 href={item.href}
                 className={`flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-200 ${pathname === item.href
-                    ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg'
-                    : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'
+                  ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg'
+                  : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'
                   }`}
               >
                 <span className="text-lg">{item.icon}</span>
@@ -65,8 +66,8 @@ const Navigation = () => {
                 key={item.href}
                 href={item.href}
                 className={`flex items-center space-x-2 px-4 py-3 rounded-xl transition-all duration-200 ${pathname === item.href
-                    ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg'
-                    : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'
+                  ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg'
+                  : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'
                   }`}
               >
                 <span className="text-lg">{item.icon}</span>

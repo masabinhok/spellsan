@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import spellingWords from '../../spelling_words.json';
+import { speakWordInBritishEnglish } from '../utils/speech';
 
 export default function LearnWords() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -35,11 +36,7 @@ export default function LearnWords() {
   }).filter(item => item.count > 0);
 
   const speakWord = (word: string) => {
-    if ('speechSynthesis' in window) {
-      const utterance = new SpeechSynthesisUtterance(word);
-      utterance.rate = 0.7;
-      speechSynthesis.speak(utterance);
-    }
+    speakWordInBritishEnglish(word);
   };
 
   const clearFilters = () => {
@@ -182,8 +179,8 @@ export default function LearnWords() {
           <button
             onClick={() => setSelectedAlphabet('')}
             className={`px-3 py-2 rounded-lg transition-all ${selectedAlphabet === ''
-                ? 'bg-indigo-600 text-white'
-                : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
+              ? 'bg-indigo-600 text-white'
+              : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
               }`}
           >
             All
@@ -193,8 +190,8 @@ export default function LearnWords() {
               key={letter}
               onClick={() => setSelectedAlphabet(letter)}
               className={`px-3 py-2 rounded-lg transition-all ${selectedAlphabet === letter
-                  ? 'bg-indigo-600 text-white'
-                  : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
+                ? 'bg-indigo-600 text-white'
+                : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
                 }`}
             >
               {letter} ({count})
