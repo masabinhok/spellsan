@@ -303,8 +303,8 @@ export default function Practice() {
                 {feedback ? (
                   <div
                     className={`p-4 md:p-6 rounded-xl md:rounded-2xl border-2 ${feedback.includes("Correct")
-                        ? "bg-green-50 border-green-200"
-                        : "bg-red-50 border-red-200"
+                      ? "bg-green-50 border-green-200"
+                      : "bg-red-50 border-red-200"
                       }`}
                   >
                     <div className="flex items-center justify-center space-x-3 mb-2">
@@ -508,25 +508,22 @@ export default function Practice() {
             </div>{" "}
           </div>{" "}
         </div>{" "}
-        {/* Alphabet Grid */}{" "}
-        <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-8">
-          {" "}
-          <h2 className="text-2xl font-bold text-slate-800 mb-6">
+        {/* Alphabet Grid */}
+        <div className="bg-white rounded-xl md:rounded-2xl shadow-lg border border-slate-200 p-4 md:p-8">
+          <h2 className="text-xl md:text-2xl font-bold text-slate-800 mb-4 md:mb-6">
             Quick Alphabet Access
-          </h2>{" "}
-          <div className="grid grid-cols-6 md:grid-cols-13 gap-3">
-            {" "}
+          </h2>
+          <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-13 gap-2 md:gap-3">
             {alphabetOptions.map(({ letter, count }) => (
               <button
                 key={letter}
                 onClick={() => startPractice("alphabet", letter)}
-                className="group bg-blue-50 rounded-xl p-4 text-center hover:shadow-md transition-all duration-200 hover:scale-105 border border-blue-100 hover:bg-blue-100"
+                className="group bg-blue-50 rounded-lg md:rounded-xl p-2 md:p-4 text-center hover:shadow-md transition-all duration-200 hover:scale-105 border border-blue-100 hover:bg-blue-100 active:scale-95"
               >
-                {" "}
-                <div className="text-2xl font-bold text-blue-600 mb-1">
+                <div className="text-lg md:text-2xl font-bold text-blue-600 mb-1">
                   {letter}
-                </div>{" "}
-                <div className="text-sm text-slate-600">{count} words</div>{" "}
+                </div>
+                <div className="text-xs md:text-sm text-slate-600">{count} words</div>
               </button>
             ))}{" "}
           </div>{" "}

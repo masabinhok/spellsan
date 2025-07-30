@@ -244,16 +244,16 @@ export default function Progress() {
         </div>
 
         {/* Alphabet Progress */}
-        <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-8 mb-12">
-          <h2 className="text-2xl font-bold text-slate-800 mb-6">Progress by Letter</h2>
-          <div className="grid grid-cols-6 md:grid-cols-13 gap-3">
+        <div className="bg-white rounded-xl md:rounded-2xl shadow-lg border border-slate-200 p-4 md:p-8 mb-8 md:mb-12">
+          <h2 className="text-xl md:text-2xl font-bold text-slate-800 mb-4 md:mb-6">Progress by Letter</h2>
+          <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-13 gap-2 md:gap-3">
             {alphabetProgress.map(({ letter, totalWords, learnedWords, progress }) => (
               <div
                 key={letter}
-                className="bg-slate-50 rounded-xl p-3 text-center hover:bg-blue-50 transition-all border border-slate-200"
+                className="bg-slate-50 rounded-lg md:rounded-xl p-2 md:p-3 text-center hover:bg-blue-50 transition-all border border-slate-200"
               >
-                <div className="text-lg font-bold text-slate-700 mb-1">{letter}</div>
-                <div className="text-xs text-slate-500 mb-2">{learnedWords}/{totalWords}</div>
+                <div className="text-base md:text-lg font-bold text-slate-700 mb-1">{letter}</div>
+                <div className="text-xs text-slate-500 mb-1 md:mb-2">{learnedWords}/{totalWords}</div>
                 <div className="w-full bg-slate-200 rounded-full h-1">
                   <div
                     className="bg-blue-600 h-1 rounded-full transition-all duration-500"
