@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import Link from "next/link";
-import spellingWords from "../../spelling_words.json";
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import spellingWords from '../../spelling_words.json';
 
 interface ProgressStats {
   totalWords: number;
@@ -24,329 +24,299 @@ export default function Progress() {
     streak: 0,
     totalPracticeSessions: 0,
     averageAccuracy: 0,
-    lastPracticeDate: "",
+    lastPracticeDate: '',
     wordsLearned: [],
     difficultWords: [],
   });
 
-  const [selectedPeriod, setSelectedPeriod] = useState<
-    "week" | "month" | "all"
-  >("week");
+  const [selectedPeriod, setSelectedPeriod] = useState<'week' | 'month' | 'all'>('week');
 
   useEffect(() => {
     // Load stats from localStorage
-    const savedStats = localStorage.getItem("spellsan-stats");
+    const savedStats = localStorage.getItem('spellsan-stats');
     if (savedStats) {
       const parsedStats = JSON.parse(savedStats);
-      setStats((prev) => ({ ...prev, ...parsedStats }));
+      setStats(prev => ({ ...prev, ...parsedStats }));
     }
   }, []);
 
   const alphabetProgress = Array.from({ length: 26 }, (_, i) => {
     const letter = String.fromCharCode(65 + i);
     const totalWords = spellingWords.filter(
-      (word) => word.charAt(0).toUpperCase() === letter,
+      word => word.charAt(0).toUpperCase() === letter
     ).length;
-
-    const practicedWords = stats.wordsLearned.filter(
-      (word) => word.charAt(0).toUpperCase() === letter,
+    const learnedWords = stats.wordsLearned.filter(
+      word => word.charAt(0).toUpperCase() === letter
     ).length;
+    const progress = totalWords > 0 ? Math.round((learnedWords / totalWords) * 100) : 0;
 
-    const progress = totalWords > 0 ? (practicedWords / totalWords) * 100 : 0;
+    return { letter, totalWords, learnedWords, progress };
+  });
 
-    return { letter, totalWords, practicedWords, progress };
-  }).filter((item) => item.totalWords > 0);
-
-  const achievements = [
+  const achievementBadges = [
     {
-      title: "First Steps",
-      description: "Complete your first practice session",
-      icon: "👶",
-      achieved: stats.totalPracticeSessions > 0,
-      progress: Math.min(stats.totalPracticeSessions, 1),
+      title: 'First Steps',
+      description: 'Complete your first practice session',
+      earned: stats.totalPracticeSessions > 0,
+      icon: (
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+      )
     },
     {
-      title: "Word Explorer",
-      description: "Practice 50 different words",
-      icon: "🌟",
-      achieved: stats.wordsLearned.length >= 50,
-      progress: Math.min(stats.wordsLearned.length / 50, 1),
+      title: 'Streak Master',
+      description: 'Maintain a 7-day practice streak',
+      earned: stats.streak >= 7,
+      icon: (
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" />
+        </svg>
+      )
     },
     {
-      title: "Accuracy Master",
-      description: "Achieve 90% accuracy in a session",
-      icon: "🎯",
-      achieved: stats.accuracy >= 90,
-      progress: Math.min(stats.accuracy / 90, 1),
+      title: 'Accuracy Expert',
+      description: 'Achieve 90% accuracy or higher',
+      earned: stats.averageAccuracy >= 90,
+      icon: (
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      )
     },
     {
-      title: "Streak Warrior",
-      description: "Practice for 7 consecutive days",
-      icon: "🔥",
-      achieved: stats.streak >= 7,
-      progress: Math.min(stats.streak / 7, 1),
-    },
-    {
-      title: "Word Collector",
-      description: "Practice 100 different words",
-      icon: "📚",
-      achieved: stats.wordsLearned.length >= 100,
-      progress: Math.min(stats.wordsLearned.length / 100, 1),
-    },
-    {
-      title: "Perfectionist",
-      description: "Achieve 100% accuracy in a session",
-      icon: "💯",
-      achieved: stats.accuracy === 100,
-      progress: Math.min(stats.accuracy / 100, 1),
-    },
+      title: 'Word Master',
+      description: 'Learn 100 words',
+      earned: stats.wordsLearned.length >= 100,
+      icon: (
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+        </svg>
+      )
+    }
   ];
 
-  const clearProgress = () => {
-    if (
-      confirm(
-        "Are you sure you want to clear all progress? This action cannot be undone.",
-      )
-    ) {
-      localStorage.removeItem("spellsan-stats");
-      setStats({
-        totalWords: spellingWords.length,
-        practiceToday: 0,
-        accuracy: 0,
-        streak: 0,
-        totalPracticeSessions: 0,
-        averageAccuracy: 0,
-        lastPracticeDate: "",
-        wordsLearned: [],
-        difficultWords: [],
-      });
-    }
-  };
-
   return (
-    <div className="container mx-auto px-4 py-12 max-w-7xl">
-      {/* Header */}
-      <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-900 via-indigo-900 to-purple-900 dark:from-white dark:via-indigo-200 dark:to-purple-200 bg-clip-text text-transparent mb-4">
-          Your Progress
-        </h1>
-        <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-          Track your spelling journey and celebrate your achievements
-        </p>
-      </div>
-
-      {/* Overall Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-        <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-lg rounded-2xl shadow-lg border border-white/20 dark:border-slate-700/50 p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Words Learned
-              </p>
-              <p className="text-3xl font-bold text-gray-900 dark:text-white">
-                {stats.wordsLearned.length}
-              </p>
-              <p className="text-xs text-gray-500 dark:text-gray-500">
-                of {stats.totalWords}
-              </p>
-            </div>
-            <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center">
-              <span className="text-2xl">📚</span>
-            </div>
-          </div>
-          <div className="mt-4">
-            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-              <div
-                className="bg-blue-500 h-2 rounded-full transition-all duration-500"
-                style={{
-                  width: `${(stats.wordsLearned.length / stats.totalWords) * 100}%`,
-                }}
-              ></div>
-            </div>
-          </div>
+    <div className="bg-slate-50 min-h-screen">
+      <div className="container mx-auto px-4 py-12 max-w-7xl">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold text-slate-800 mb-4">
+            Your Progress
+          </h1>
+          <p className="text-xl text-slate-600 max-w-2xl mx-auto">
+            Track your spelling journey and see how far you've come
+          </p>
         </div>
 
-        <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-lg rounded-2xl shadow-lg border border-white/20 dark:border-slate-700/50 p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Current Streak
-              </p>
-              <p className="text-3xl font-bold text-gray-900 dark:text-white">
-                {stats.streak}
-              </p>
-              <p className="text-xs text-gray-500 dark:text-gray-500">days</p>
-            </div>
-            <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-xl flex items-center justify-center">
-              <span className="text-2xl">🔥</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-lg rounded-2xl shadow-lg border border-white/20 dark:border-slate-700/50 p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Average Accuracy
-              </p>
-              <p className="text-3xl font-bold text-gray-900 dark:text-white">
-                {stats.averageAccuracy}%
-              </p>
-            </div>
-            <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-xl flex items-center justify-center">
-              <span className="text-2xl">🎯</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-lg rounded-2xl shadow-lg border border-white/20 dark:border-slate-700/50 p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Practice Sessions
-              </p>
-              <p className="text-3xl font-bold text-gray-900 dark:text-white">
-                {stats.totalPracticeSessions}
-              </p>
-              <p className="text-xs text-gray-500 dark:text-gray-500">total</p>
-            </div>
-            <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center">
-              <span className="text-2xl">📊</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Achievements */}
-      <div className="mb-12">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-          Achievements
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {achievements.map((achievement, index) => (
-            <div
-              key={index}
-              className={`bg-white/70 dark:bg-slate-900/70 backdrop-blur-lg rounded-2xl shadow-lg border border-white/20 dark:border-slate-700/50 p-6 ${
-                achievement.achieved
-                  ? "ring-2 ring-green-500 dark:ring-green-400"
-                  : ""
-              }`}
-            >
-              <div className="flex items-center space-x-4 mb-4">
-                <div
-                  className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                    achievement.achieved
-                      ? "bg-green-100 dark:bg-green-900/30"
-                      : "bg-gray-100 dark:bg-gray-700"
+        {/* Time Period Selector */}
+        <div className="flex justify-center mb-8">
+          <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-2 flex">
+            {(['week', 'month', 'all'] as const).map(period => (
+              <button
+                key={period}
+                onClick={() => setSelectedPeriod(period)}
+                className={`px-6 py-2 rounded-xl transition-all ${selectedPeriod === period
+                    ? 'bg-blue-600 text-white'
+                    : 'text-slate-600 hover:bg-slate-100'
                   }`}
-                >
-                  <span className="text-2xl">{achievement.icon}</span>
+              >
+                {period === 'week' ? 'This Week' : period === 'month' ? 'This Month' : 'All Time'}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Main Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+          <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-slate-600">Practice Sessions</p>
+                <p className="text-3xl font-bold text-slate-800">{stats.totalPracticeSessions}</p>
+                <p className="text-xs text-slate-500">Total completed</p>
+              </div>
+              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+              </div>
+            </div>
+            <div className="w-full bg-slate-200 rounded-full h-2 mt-4">
+              <div
+                className="bg-blue-600 h-2 rounded-full transition-all duration-500"
+                style={{ width: `${Math.min((stats.totalPracticeSessions / 50) * 100, 100)}%` }}
+              />
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-slate-600">Current Streak</p>
+                <p className="text-3xl font-bold text-slate-800">{stats.streak}</p>
+                <p className="text-xs text-slate-500">Days in a row</p>
+              </div>
+              <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center">
+                <svg className="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 18.657A8 8 0 716.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" />
+                </svg>
+              </div>
+            </div>
+            <div className="w-full bg-slate-200 rounded-full h-2 mt-4">
+              <div
+                className="bg-amber-600 h-2 rounded-full transition-all duration-500"
+                style={{ width: `${Math.min((stats.streak / 30) * 100, 100)}%` }}
+              />
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-slate-600">Average Accuracy</p>
+                <p className="text-3xl font-bold text-slate-800">{stats.averageAccuracy}%</p>
+                <p className="text-xs text-slate-500">Across all sessions</p>
+              </div>
+              <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
+                <svg className="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+            </div>
+            <div className="w-full bg-slate-200 rounded-full h-2 mt-4">
+              <div
+                className="bg-emerald-600 h-2 rounded-full transition-all duration-500"
+                style={{ width: `${stats.averageAccuracy}%` }}
+              />
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-slate-600">Words Learned</p>
+                <p className="text-3xl font-bold text-slate-800">{stats.wordsLearned.length}</p>
+                <p className="text-xs text-slate-500">of {stats.totalWords} total</p>
+              </div>
+              <div className="w-12 h-12 bg-violet-100 rounded-xl flex items-center justify-center">
+                <svg className="w-6 h-6 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+              </div>
+            </div>
+            <div className="w-full bg-slate-200 rounded-full h-2 mt-4">
+              <div
+                className="bg-violet-600 h-2 rounded-full transition-all duration-500"
+                style={{ width: `${(stats.wordsLearned.length / stats.totalWords) * 100}%` }}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Achievements */}
+        <div className="mb-12">
+          <h2 className="text-2xl font-bold text-slate-800 mb-6">Achievements</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {achievementBadges.map((badge, index) => (
+              <div
+                key={index}
+                className={`bg-white rounded-2xl shadow-lg border border-slate-200 p-6 transition-all ${badge.earned ? 'ring-2 ring-blue-500' : 'opacity-60'
+                  }`}
+              >
+                <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${badge.earned ? 'bg-blue-100 text-blue-600' : 'bg-slate-100 text-slate-400'
+                  }`}>
+                  {badge.icon}
                 </div>
-                <div className="flex-1">
-                  <h3
-                    className={`font-bold ${
-                      achievement.achieved
-                        ? "text-green-700 dark:text-green-300"
-                        : "text-gray-700 dark:text-gray-300"
-                    }`}
-                  >
-                    {achievement.title}
-                  </h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    {achievement.description}
-                  </p>
-                </div>
-                {achievement.achieved && (
-                  <div className="text-green-500 dark:text-green-400">
-                    <svg
-                      className="w-6 h-6"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <h3 className="font-bold text-slate-800 mb-2">{badge.title}</h3>
+                <p className="text-sm text-slate-600">{badge.description}</p>
+                {badge.earned && (
+                  <div className="mt-3 inline-flex items-center text-blue-600 text-sm font-medium">
+                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
+                    Earned
                   </div>
                 )}
               </div>
-
-              {!achievement.achieved && (
-                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                  <div
-                    className="bg-indigo-500 h-2 rounded-full transition-all duration-500"
-                    style={{ width: `${achievement.progress * 100}%` }}
-                  ></div>
-                </div>
-              )}
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
 
-      {/* Alphabet Progress */}
-      <div className="mb-12">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-          Progress by Letter
-        </h2>
-        <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-lg rounded-2xl shadow-lg border border-white/20 dark:border-slate-700/50 p-6">
-          <div className="grid grid-cols-6 md:grid-cols-13 gap-4">
-            {alphabetProgress.map(
-              ({ letter, totalWords, practicedWords, progress }) => (
-                <div
-                  key={letter}
-                  className="text-center p-3 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-xl border border-indigo-100 dark:border-indigo-800"
-                >
-                  <div className="text-xl font-bold text-indigo-600 dark:text-indigo-400 mb-2">
-                    {letter}
-                  </div>
-                  <div className="text-xs text-gray-600 dark:text-gray-400 mb-2">
-                    {practicedWords}/{totalWords}
-                  </div>
-                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1">
-                    <div
-                      className="bg-indigo-500 h-1 rounded-full transition-all duration-500"
-                      style={{ width: `${progress}%` }}
-                    ></div>
+        {/* Alphabet Progress */}
+        <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-8 mb-12">
+          <h2 className="text-2xl font-bold text-slate-800 mb-6">Progress by Letter</h2>
+          <div className="grid grid-cols-6 md:grid-cols-13 gap-3">
+            {alphabetProgress.map(({ letter, totalWords, learnedWords, progress }) => (
+              <div
+                key={letter}
+                className="bg-slate-50 rounded-xl p-3 text-center hover:bg-blue-50 transition-all border border-slate-200"
+              >
+                <div className="text-lg font-bold text-slate-700 mb-1">{letter}</div>
+                <div className="text-xs text-slate-500 mb-2">{learnedWords}/{totalWords}</div>
+                <div className="w-full bg-slate-200 rounded-full h-1">
+                  <div
+                    className="bg-blue-600 h-1 rounded-full transition-all duration-500"
+                    style={{ width: `${progress}%` }}
+                  />
+                </div>
+                <div className="text-xs text-slate-500 mt-1">{progress}%</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Difficult Words */}
+        {stats.difficultWords.length > 0 && (
+          <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-8 mb-12">
+            <h2 className="text-2xl font-bold text-slate-800 mb-6">Words to Practice</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {stats.difficultWords.slice(0, 12).map((word, index) => (
+                <div key={index} className="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium text-slate-800">{word}</span>
+                    <Link
+                      href={`/practice?word=${word}`}
+                      className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                    >
+                      Practice
+                    </Link>
                   </div>
                 </div>
-              ),
+              ))}
+            </div>
+            {stats.difficultWords.length > 12 && (
+              <div className="text-center mt-6">
+                <Link
+                  href="/practice"
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-xl transition-all"
+                >
+                  Practice All Difficult Words
+                </Link>
+              </div>
             )}
+          </div>
+        )}
+
+        {/* Quick Actions */}
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-slate-800 mb-6">Continue Learning</h2>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              href="/practice"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-xl transition-all"
+            >
+              Continue Practice
+            </Link>
+            <Link
+              href="/learn"
+              className="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-3 px-8 rounded-xl transition-all"
+            >
+              Browse Words
+            </Link>
           </div>
         </div>
       </div>
-
-      {/* Quick Actions */}
-      <div className="flex flex-col sm:flex-row gap-4 justify-center">
-        <Link
-          href="/practice"
-          className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-3 px-8 rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-indigo-100 dark:focus:ring-indigo-900/30 text-center"
-        >
-          Continue Practice
-        </Link>
-
-        <Link
-          href="/learn"
-          className="bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-gray-300 font-bold py-3 px-8 rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl text-center"
-        >
-          Study Words
-        </Link>
-
-        <button
-          onClick={clearProgress}
-          className="bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-8 rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-red-100 dark:focus:ring-red-900/30"
-        >
-          Reset Progress
-        </button>
-      </div>
-
-      {/* Last Practice Info */}
-      {stats.lastPracticeDate && (
-        <div className="text-center mt-8">
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            Last practice session:{" "}
-            {new Date(stats.lastPracticeDate).toLocaleDateString()}
-          </p>
-        </div>
-      )}
     </div>
   );
 }
