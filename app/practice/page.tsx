@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import spellingWords from "../../clean_spelling_words.json";
-import { speakWordInBritishEnglish } from "../utils/speech";
+import AudioButton from "../components/AudioButton";
 
 interface GameStats {
   correct: number;
@@ -124,9 +124,7 @@ function PracticeComponent() {
       checkSpelling();
     }
   };
-  const speakWord = () => {
-    speakWordInBritishEnglish(currentWord);
-  };
+
   const resetGame = () => {
     setIsGameActive(false);
     setGameComplete(false);
@@ -263,9 +261,11 @@ function PracticeComponent() {
               <div className="text-center space-y-6 md:space-y-8">
                 {/* Audio Button */}
                 <div className="space-y-3 md:space-y-4">
-                  <button
-                    onClick={speakWord}
-                    className="group bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 md:py-4 md:px-8 rounded-xl md:rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-blue-100 active:scale-95"
+                  <AudioButton
+                    word={currentWord}
+                    size="lg"
+                    variant="primary"
+                    className="group font-bold py-3 px-6 md:py-4 md:px-8 rounded-xl md:rounded-2xl shadow-lg hover:shadow-xl focus:ring-4 focus:ring-blue-100 w-auto h-auto"
                   >
                     <div className="flex items-center space-x-2 md:space-x-3">
                       <svg
@@ -277,7 +277,7 @@ function PracticeComponent() {
                       </svg>
                       <span className="text-sm md:text-base">Hear Word</span>
                     </div>
-                  </button>
+                  </AudioButton>
                   {showAnswer && (
                     <div className="bg-yellow-50 border border-yellow-200 rounded-xl md:rounded-2xl p-3 md:p-4">
                       <p className="text-xs md:text-sm text-yellow-800 mb-2">

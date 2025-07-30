@@ -1,5 +1,5 @@
 // British English Speech Synthesis Utility
-import { playBritishPronunciation } from './britishAudio';
+import { britishAudioService } from './britishAudio';
 
 // Function to check if British English voices are available
 export const hasBritishVoices = (): boolean => {
@@ -40,21 +40,22 @@ export const getDeviceType = (): 'windows' | 'mac' | 'android' | 'ios' | 'linux'
 // Main function - now uses Wiktionary British audio as primary method
 export const speakWordInBritishEnglish = async (word: string): Promise<void> => {
   try {
+    // Check if audio is already playing for this word
+    if (britishAudioService.isCurrentlyPlaying(word)) {
+      console.log(`Already playing "${word}" - ignoring duplicate request`);
+      return;
+    }
+
     // First try: Use Wiktionary British audio (most reliable)
-    const success = await playBritishPronunciation(word);
+    const success = await britishAudioService.playBritishPronunciation(word);
     
     if (success) {
       console.log(`✅ Played British audio from Wiktionary for: ${word}`);
       return;
     }
     
-    // Fallback: Use device speech synthesis
-    console.log(`⚠️ No Wiktionary audio found for "${word}", using device speech`);
-    fallbackToDeviceSpeech(word);
-    
   } catch (error) {
     console.warn(`Error playing British pronunciation for "${word}":`, error);
-    fallbackToDeviceSpeech(word);
   }
 };
 

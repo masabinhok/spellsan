@@ -8,6 +8,35 @@ interface AudioCache {
 class BritishAudioService {
   private cache: AudioCache = {};
   private loadingWords = new Set<string>();
+  private currentAudio: HTMLAudioElement | null = null;
+  private isPlaying = false;
+  private currentWord = '';
+
+  // Stop any currently playing audio
+  private stopCurrentAudio(): void {
+    // Stop HTML audio
+    if (this.currentAudio) {
+      this.currentAudio.pause();
+      this.currentAudio.currentTime = 0;
+      this.currentAudio = null;
+    }
+
+    // Stop speech synthesis
+    if (speechSynthesis.speaking) {
+      speechSynthesis.cancel();
+    }
+
+    this.isPlaying = false;
+    this.currentWord = '';
+  }
+
+  // Check if audio is currently playing
+  isCurrentlyPlaying(word?: string): boolean {
+    if (word && this.currentWord !== word) {
+      return false;
+    }
+    return this.isPlaying;
+  }
 
   // Get British audio URL for a word from Wiktionary
   async getBritishAudioUrl(word: string): Promise<string | null> {
@@ -109,6 +138,19 @@ class BritishAudioService {
 
   // Play British pronunciation audio for a word
   async playBritishPronunciation(word: string): Promise<boolean> {
+    // Debounce: Don't play if same word is already playing
+    if (this.isCurrentlyPlaying(word)) {
+      console.log(`Already playing "${word}" - ignoring duplicate request`);
+      return true;
+    }
+
+    // Stop any currently playing audio
+    this.stopCurrentAudio();
+    
+    // Set playing state immediately to prevent double-clicks
+    this.isPlaying = true;
+    this.currentWord = word;
+
     try {
       const audioUrl = await this.getBritishAudioUrl(word);
       
@@ -120,14 +162,37 @@ class BritishAudioService {
       }
 
       // Create and play audio element
-      const audio = new Audio(audioUrl);
-      audio.crossOrigin = 'anonymous'; // Handle CORS
+      const audio = new Audio();
+      this.currentAudio = audio;
       
-      // Set volume and playback rate
+      // Set up audio properties
+      audio.crossOrigin = 'anonymous'; // Handle CORS
       audio.volume = 0.8;
       audio.playbackRate = 0.9; // Slightly slower for clarity
+      audio.src = audioUrl;
 
-      await audio.play();
+      // Set up event listeners
+      audio.onended = () => {
+        this.isPlaying = false;
+        this.currentWord = '';
+        this.currentAudio = null;
+      };
+
+      audio.onerror = () => {
+        console.warn(`Failed to load audio for "${word}", using fallback`);
+        this.fallbackToDeviceSpeech(word);
+      };
+
+      audio.oncanplay = () => {
+        audio.play().catch(error => {
+          console.warn(`Failed to play audio for "${word}":`, error);
+          this.fallbackToDeviceSpeech(word);
+        });
+      };
+
+      // Load the audio
+      audio.load();
+      
       console.log(`Playing British pronunciation for "${word}" from:`, audioUrl);
       return true;
 
@@ -143,33 +208,59 @@ class BritishAudioService {
   private fallbackToDeviceSpeech(word: string): void {
     if (!("speechSynthesis" in window)) {
       console.warn("No audio playback available");
+      this.isPlaying = false;
+      this.currentWord = '';
       return;
     }
 
-    const utterance = new SpeechSynthesisUtterance(word);
-    utterance.rate = 0.7;
-    utterance.lang = "en-GB";
-
-    // Try to find a British voice (existing logic)
-    const voices = speechSynthesis.getVoices();
-    const britishVoice = voices.find((voice) => {
-      const name = voice.name.toLowerCase();
-      return (
-        voice.lang === "en-GB" ||
-        voice.lang === "en-gb" ||
-        name.includes("british") ||
-        name.includes("uk") ||
-        name.includes("daniel") ||
-        name.includes("kate")
-      );
-    });
-
-    if (britishVoice) {
-      utterance.voice = britishVoice;
+    // Ensure speech synthesis is stopped first
+    if (speechSynthesis.speaking) {
+      speechSynthesis.cancel();
     }
 
-    speechSynthesis.speak(utterance);
-    console.log(`Fallback: Using device speech synthesis for "${word}"`);
+    // Small delay to ensure cancellation is processed
+    setTimeout(() => {
+      const utterance = new SpeechSynthesisUtterance(word);
+      utterance.rate = 0.7;
+      utterance.lang = "en-GB";
+
+      // Set up event listeners
+      utterance.onstart = () => {
+        this.isPlaying = true;
+        this.currentWord = word;
+      };
+
+      utterance.onend = () => {
+        this.isPlaying = false;
+        this.currentWord = '';
+      };
+
+      utterance.onerror = () => {
+        this.isPlaying = false;
+        this.currentWord = '';
+      };
+
+      // Try to find a British voice (existing logic)
+      const voices = speechSynthesis.getVoices();
+      const britishVoice = voices.find((voice) => {
+        const name = voice.name.toLowerCase();
+        return (
+          voice.lang === "en-GB" ||
+          voice.lang === "en-gb" ||
+          name.includes("british") ||
+          name.includes("uk") ||
+          name.includes("daniel") ||
+          name.includes("kate")
+        );
+      });
+
+      if (britishVoice) {
+        utterance.voice = britishVoice;
+      }
+
+      speechSynthesis.speak(utterance);
+      console.log(`Fallback: Using device speech synthesis for "${word}"`);
+    }, 100);
   }
 
   // Preload audio for common words to improve performance
@@ -200,8 +291,14 @@ class BritishAudioService {
 
   // Clear cache (useful for testing)
   clearCache(): void {
+    this.stopCurrentAudio(); // Stop any playing audio
     this.cache = {};
     this.loadingWords.clear();
+  }
+
+  // Stop any currently playing audio (public method)
+  stopAudio(): void {
+    this.stopCurrentAudio();
   }
 }
 
