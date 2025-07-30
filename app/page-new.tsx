@@ -22,7 +22,7 @@ export default function Dashboard() {
 
   const alphabetStats = Array.from({ length: 26 }, (_, i) => {
     const letter = String.fromCharCode(65 + i);
-    const wordsForLetter = spellingWords.filter(word => 
+    const wordsForLetter = spellingWords.filter(word =>
       word.charAt(0).toUpperCase() === letter
     ).length;
     return { letter, count: wordsForLetter };
