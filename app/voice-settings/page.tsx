@@ -1,13 +1,15 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { getBritishVoices, speakWordInBritishEnglish } from '../utils/speech';
+import { useState, useEffect } from "react";
+import { getBritishVoices, speakWordInBritishEnglish } from "../utils/speech";
 
 export default function VoiceSettings() {
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
-  const [britishVoices, setBritishVoices] = useState<SpeechSynthesisVoice[]>([]);
-  const [selectedVoice, setSelectedVoice] = useState<string>('');
-  const [testWord, setTestWord] = useState('pronunciation');
+  const [britishVoices, setBritishVoices] = useState<SpeechSynthesisVoice[]>(
+    [],
+  );
+  const [selectedVoice, setSelectedVoice] = useState<string>("");
+  const [testWord, setTestWord] = useState("pronunciation");
 
   useEffect(() => {
     const loadVoices = () => {
@@ -26,22 +28,22 @@ export default function VoiceSettings() {
     loadVoices();
 
     // Also listen for voices changed event (needed for some browsers)
-    speechSynthesis.addEventListener('voiceschanged', loadVoices);
+    speechSynthesis.addEventListener("voiceschanged", loadVoices);
 
     return () => {
-      speechSynthesis.removeEventListener('voiceschanged', loadVoices);
+      speechSynthesis.removeEventListener("voiceschanged", loadVoices);
     };
   }, [selectedVoice]);
 
   const testVoice = (voiceName?: string) => {
     if (voiceName) {
       // Test specific voice
-      const voice = voices.find(v => v.name === voiceName);
+      const voice = voices.find((v) => v.name === voiceName);
       if (voice) {
         const utterance = new SpeechSynthesisUtterance(testWord);
         utterance.voice = voice;
         utterance.rate = 0.7;
-        utterance.lang = 'en-GB';
+        utterance.lang = "en-GB";
         speechSynthesis.speak(utterance);
       }
     } else {
@@ -99,7 +101,8 @@ export default function VoiceSettings() {
                           {voice.name}
                         </h3>
                         <p className="text-sm text-green-600 dark:text-green-300">
-                          Language: {voice.lang} | {voice.localService ? 'Local' : 'Remote'}
+                          Language: {voice.lang} |{" "}
+                          {voice.localService ? "Local" : "Remote"}
                         </p>
                       </div>
                       <button
@@ -118,12 +121,22 @@ export default function VoiceSettings() {
                   No British English Voices Found
                 </h3>
                 <p className="text-yellow-700 dark:text-yellow-300 mb-4">
-                  Your system doesn't have any British English voices installed. The application will use the default system voice.
+                  Your system doesn't have any British English voices installed.
+                  The application will use the default system voice.
                 </p>
                 <div className="space-y-2 text-sm text-yellow-600 dark:text-yellow-400">
-                  <p><strong>Windows:</strong> Go to Settings → Time & language → Speech → Add more voices</p>
-                  <p><strong>macOS:</strong> System Preferences → Accessibility → Speech → System Voice</p>
-                  <p><strong>Linux:</strong> Install espeak-ng or festival with British English voices</p>
+                  <p>
+                    <strong>Windows:</strong> Go to Settings → Time & language →
+                    Speech → Add more voices
+                  </p>
+                  <p>
+                    <strong>macOS:</strong> System Preferences → Accessibility →
+                    Speech → System Voice
+                  </p>
+                  <p>
+                    <strong>Linux:</strong> Install espeak-ng or festival with
+                    British English voices
+                  </p>
                 </div>
               </div>
             )}
@@ -139,10 +152,12 @@ export default function VoiceSettings() {
               {voices.map((voice) => (
                 <div
                   key={voice.name}
-                  className={`p-3 rounded-lg border transition-all ${voice.lang.toLowerCase().includes('en-gb') || voice.lang.toLowerCase().includes('british')
-                      ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-700'
-                      : 'bg-gray-50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-600'
-                    }`}
+                  className={`p-3 rounded-lg border transition-all ${
+                    voice.lang.toLowerCase().includes("en-gb") ||
+                    voice.lang.toLowerCase().includes("british")
+                      ? "bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-700"
+                      : "bg-gray-50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-600"
+                  }`}
                 >
                   <div className="flex items-center justify-between">
                     <div>
@@ -174,19 +189,23 @@ export default function VoiceSettings() {
               <div>
                 <h4 className="font-semibold">Windows 10/11:</h4>
                 <p className="text-sm">
-                  Settings → Time & language → Speech → Add more voices → Download British English voices (like "Microsoft Hazel" or "Microsoft George")
+                  Settings → Time & language → Speech → Add more voices →
+                  Download British English voices (like "Microsoft Hazel" or
+                  "Microsoft George")
                 </p>
               </div>
               <div>
                 <h4 className="font-semibold">macOS:</h4>
                 <p className="text-sm">
-                  System Preferences → Accessibility → Speech → System Voice → Customize → Download voices like "Daniel (UK)" or "Kate (UK)"
+                  System Preferences → Accessibility → Speech → System Voice →
+                  Customize → Download voices like "Daniel (UK)" or "Kate (UK)"
                 </p>
               </div>
               <div>
                 <h4 className="font-semibold">Chrome Browser:</h4>
                 <p className="text-sm">
-                  Chrome uses system voices, so install them via your operating system first.
+                  Chrome uses system voices, so install them via your operating
+                  system first.
                 </p>
               </div>
             </div>
