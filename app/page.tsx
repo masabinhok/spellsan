@@ -88,9 +88,24 @@ export default function Dashboard() {
       <div className="container mx-auto px-4 py-6 md:py-12 max-w-7xl">
         {/* Hero Section */}
         <div className="text-center mb-8 md:mb-12">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-800 mb-4">
-            Welcome to SpellSAN
+          <div className="flex items-center justify-center space-x-4 mb-6">
+            <div className="relative">
+              {/* Clean Book Icon */}
+              <svg className="w-16 h-16 md:w-20 md:h-20 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM19 19H5V5H8V12L10.5 10.5L13 12V5H19V19Z" />
+              </svg>
+              {/* Clean Star accent */}
+              <div className="absolute -top-2 -right-2 w-6 h-6">
+                <svg className="w-full h-full text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
+              </div>
+            </div>
+          </div>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-800 mb-2">
+            Welcome to <span className="text-blue-600">SpellSAN</span>
           </h1>
+          <div className="text-lg text-slate-500 mb-4 tracking-wide">SPELLING COMPETITION PREP</div>
           <p className="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto px-4">
             Master spelling for the SAN competition with our comprehensive
             practice platform

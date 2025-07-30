@@ -53,11 +53,26 @@ const Navigation = () => {
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-lg">S</span>
+          <Link href="/" className="flex items-center space-x-3">
+            <div className="relative">
+              {/* Clean Book Icon */}
+              <svg className="w-10 h-10 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM19 19H5V5H8V12L10.5 10.5L13 12V5H19V19Z" />
+              </svg>
+              {/* Clean Sparkle accent */}
+              <div className="absolute -top-1 -right-1 w-3 h-3">
+                <svg className="w-full h-full text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
+              </div>
             </div>
-            <span className="font-bold text-xl text-slate-800 hidden sm:block">SpellSAN</span>
+            <div className="hidden sm:block">
+              <div className="flex items-baseline space-x-1">
+                <span className="font-bold text-2xl text-slate-800 tracking-tight">Spell</span>
+                <span className="font-bold text-2xl text-blue-600 tracking-tight">SAN</span>
+              </div>
+              <div className="text-xs text-slate-500 -mt-1 tracking-wide">COMPETITION PREP</div>
+            </div>
           </Link>
 
           {/* Desktop Navigation */}
@@ -69,8 +84,8 @@ const Navigation = () => {
                   key={item.href}
                   href={item.href}
                   className={`flex items-center space-x-2 px-4 py-2 rounded-xl transition-all ${isActive
-                      ? "bg-blue-100 text-blue-700 font-semibold"
-                      : "text-slate-600 hover:bg-slate-100 hover:text-slate-800"
+                    ? "bg-blue-100 text-blue-700 font-semibold"
+                    : "text-slate-600 hover:bg-slate-100 hover:text-slate-800"
                     }`}
                 >
                   {item.icon}
@@ -108,8 +123,8 @@ const Navigation = () => {
                     href={item.href}
                     onClick={() => setIsMenuOpen(false)}
                     className={`flex flex-col items-center space-y-1 p-3 rounded-xl transition-all ${isActive
-                        ? "bg-blue-100 text-blue-700 font-semibold"
-                        : "text-slate-600 hover:bg-slate-100 hover:text-slate-800"
+                      ? "bg-blue-100 text-blue-700 font-semibold"
+                      : "text-slate-600 hover:bg-slate-100 hover:text-slate-800"
                       }`}
                   >
                     {item.icon}
