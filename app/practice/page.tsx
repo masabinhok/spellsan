@@ -1,15 +1,17 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import spellingWords from "../../clean_spelling_words.json";
 import { speakWordInBritishEnglish } from "../utils/speech";
+
 interface GameStats {
   correct: number;
   incorrect: number;
   total: number;
 }
-export default function Practice() {
+
+function PracticeComponent() {
   const searchParams = useSearchParams();
   const [mode, setMode] = useState<"random" | "alphabet" | null>(null);
   const [selectedAlphabet, setSelectedAlphabet] = useState("");
@@ -530,5 +532,13 @@ export default function Practice() {
         </div>{" "}
       </div>{" "}
     </div>
+  );
+}
+
+export default function Practice() {
+  return (
+    <Suspense fallback={<div className="flex justify-center items-center min-h-screen bg-white">Loading...</div>}>
+      <PracticeComponent />
+    </Suspense>
   );
 }

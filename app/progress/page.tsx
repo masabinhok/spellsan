@@ -105,7 +105,7 @@ export default function Progress() {
             Your Progress
           </h1>
           <p className="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto px-4">
-            Track your spelling journey and see how far you've come
+            Track your spelling journey and see how far you&apos;ve come
           </p>
         </div>
 

@@ -121,7 +121,7 @@ export default function VoiceSettings() {
                   No British English Voices Found
                 </h3>
                 <p className="text-yellow-700 dark:text-yellow-300 mb-4">
-                  Your system doesn't have any British English voices installed.
+                  Your system doesn&apos;t have any British English voices installed.
                   The application will use the default system voice.
                 </p>
                 <div className="space-y-2 text-sm text-yellow-600 dark:text-yellow-400">
@@ -152,12 +152,11 @@ export default function VoiceSettings() {
               {voices.map((voice) => (
                 <div
                   key={voice.name}
-                  className={`p-3 rounded-lg border transition-all ${
-                    voice.lang.toLowerCase().includes("en-gb") ||
-                    voice.lang.toLowerCase().includes("british")
+                  className={`p-3 rounded-lg border transition-all ${voice.lang.toLowerCase().includes("en-gb") ||
+                      voice.lang.toLowerCase().includes("british")
                       ? "bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-700"
                       : "bg-gray-50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-600"
-                  }`}
+                    }`}
                 >
                   <div className="flex items-center justify-between">
                     <div>
@@ -189,16 +188,16 @@ export default function VoiceSettings() {
               <div>
                 <h4 className="font-semibold">Windows 10/11:</h4>
                 <p className="text-sm">
-                  Settings → Time & language → Speech → Add more voices →
-                  Download British English voices (like "Microsoft Hazel" or
-                  "Microsoft George")
+                  Settings → Time &amp; language → Speech → Add more voices →
+                  Download British English voices (like &quot;Microsoft Hazel&quot; or
+                  &quot;Microsoft George&quot;)
                 </p>
               </div>
               <div>
                 <h4 className="font-semibold">macOS:</h4>
                 <p className="text-sm">
                   System Preferences → Accessibility → Speech → System Voice →
-                  Customize → Download voices like "Daniel (UK)" or "Kate (UK)"
+                  Customize → Download voices like &quot;Daniel (UK)&quot; or &quot;Kate (UK)&quot;
                 </p>
               </div>
               <div>
