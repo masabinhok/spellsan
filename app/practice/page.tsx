@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback, Suspense } from "react";
+import { useState, useEffect, useCallback, Suspense, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import spellingWords from "../../clean_spelling_words.json";
@@ -31,6 +31,8 @@ function PracticeComponent() {
   const [gameComplete, setGameComplete] = useState(false);
   const [availableWords, setAvailableWords] = useState<string[]>([]);
   const [shouldAutoPlay, setShouldAutoPlay] = useState(false);
+
+  const answerRef = useRef<HTMLInputElement | null>(null);
   useEffect(() => {
     const modeParam = searchParams.get("mode");
     const alphabetParam = searchParams.get("alphabet");
@@ -53,6 +55,7 @@ function PracticeComponent() {
       const timer = setTimeout(() => {
         playWord(currentWord);
         setShouldAutoPlay(false);
+        answerRef.current?.focus()
       }, 100); // Small delay to ensure word is set
       return () => clearTimeout(timer);
     }
@@ -309,10 +312,11 @@ function PracticeComponent() {
                 {/* Input Field */}
                 <div className="space-y-3 md:space-y-4">
                   <input
+                    ref={answerRef}
                     type="text"
                     value={userInput}
                     onChange={(e) => setUserInput(e.target.value)}
-                    onKeyPress={handleKeyPress}
+                    onKeyDown={handleKeyPress}
                     placeholder="Type the spelling here..."
                     className="w-full p-4 md:p-6 text-lg md:text-xl text-center border-2 border-slate-200 rounded-xl md:rounded-2xl focus:border-blue-500 bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all disabled:opacity-50"
                     disabled={!!feedback}
