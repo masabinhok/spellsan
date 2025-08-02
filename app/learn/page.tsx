@@ -5,29 +5,35 @@ import { speakWordInBritishEnglish } from "../utils/speech";
 import { dictionaryAPI, DictionaryDefinition } from "../utils/dictionaryApi";
 
 // WordCard component with meaning functionality
-function WordCard({ word, index }: { word: string; index: number }) {
+function WordCard({ word, index, hintsEnabled }: { word: string; index: number; hintsEnabled: boolean }) {
   const [meaning, setMeaning] = useState<DictionaryDefinition | null>(null);
-  const [showMeaning, setShowMeaning] = useState(false);
   const [isLoadingMeaning, setIsLoadingMeaning] = useState(false);
 
   const speakWord = (word: string) => {
     speakWordInBritishEnglish(word);
   };
 
-  const fetchMeaning = async () => {
-    if (!meaning && !isLoadingMeaning) {
-      setIsLoadingMeaning(true);
-      try {
-        const wordMeaning = await dictionaryAPI.getWordMeaning(word);
-        setMeaning(wordMeaning);
-      } catch (error) {
-        console.warn('Failed to fetch meaning for', word, error);
-      } finally {
-        setIsLoadingMeaning(false);
+  // Auto-fetch meaning when hints are enabled
+  useEffect(() => {
+    if (hintsEnabled && !isLoadingMeaning) {
+      const fetchMeaning = async () => {
+        setIsLoadingMeaning(true);
+        try {
+          const wordMeaning = await dictionaryAPI.getWordMeaning(word);
+          setMeaning(wordMeaning);
+        } catch (error) {
+          console.warn('Failed to fetch meaning for', word, error);
+        } finally {
+          setIsLoadingMeaning(false);
+        }
+      };
+
+      // If we don't have meaning yet, fetch it
+      if (!meaning) {
+        fetchMeaning();
       }
     }
-    setShowMeaning(!showMeaning);
-  };
+  }, [hintsEnabled, word, meaning, isLoadingMeaning]);
 
   return (
     <div
@@ -57,23 +63,6 @@ function WordCard({ word, index }: { word: string; index: number }) {
               <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
             </svg>
           </button>
-          <button
-            onClick={fetchMeaning}
-            className={`w-8 h-8 md:w-9 md:h-9 rounded-xl flex items-center justify-center transition-all group-hover:scale-110 shadow-sm hover:shadow-md ${showMeaning
-                ? 'bg-gradient-to-br from-emerald-500 to-emerald-600 text-white'
-                : 'bg-gradient-to-br from-emerald-100 to-emerald-200 text-emerald-600 hover:from-emerald-200 hover:to-emerald-300'
-              }`}
-            title={showMeaning ? "Hide meaning" : "Show meaning"}
-          >
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </button>
         </div>
       </div>
 
@@ -91,8 +80,8 @@ function WordCard({ word, index }: { word: string; index: number }) {
         </div>
         <div className="text-xs text-slate-400 font-mono">#{index + 1}</div>
       </div>
-      {/* Meaning Section */}
-      {showMeaning && (
+      {/* Meaning Section - Auto-show when hints enabled */}
+      {hintsEnabled && (
         <div className="border-t border-slate-200 pt-3 mt-3 animate-in slide-in-from-top-2 duration-200">
           {isLoadingMeaning ? (
             <div className="flex items-center space-x-2 text-slate-500">
@@ -138,6 +127,7 @@ function WordCard({ word, index }: { word: string; index: number }) {
 export default function LearnWords() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedAlphabet, setSelectedAlphabet] = useState("");
+  const [hintsEnabled, setHintsEnabled] = useState(false);
 
   const filteredWords = useMemo(() => {
     let words = spellingWords;
@@ -268,6 +258,25 @@ export default function LearnWords() {
                 </button>
               </div>
             )}
+
+            {/* Hints Toggle */}
+            <div className="flex items-end">
+              <button
+                onClick={() => setHintsEnabled(!hintsEnabled)}
+                className={`w-full md:w-auto px-4 md:px-6 py-3 md:py-4 rounded-lg md:rounded-xl transition-all shadow-sm font-medium ${hintsEnabled
+                  ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white hover:from-emerald-600 hover:to-emerald-700'
+                  : 'bg-gradient-to-r from-emerald-100 to-emerald-200 text-emerald-700 hover:from-emerald-200 hover:to-emerald-300'
+                  }`}
+                title={hintsEnabled ? "Disable automatic hints" : "Enable automatic hints"}
+              >
+                <div className="flex items-center space-x-2">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                  </svg>
+                  <span>{hintsEnabled ? 'Hints ON' : 'Hints OFF'}</span>
+                </div>
+              </button>
+            </div>
           </div>
           {/* Results count */}
           <div className="mt-4 flex items-center justify-between">
@@ -285,7 +294,7 @@ export default function LearnWords() {
         {/* Words Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
           {filteredWords.map((word, index) => (
-            <WordCard key={`${word}-${index}`} word={word} index={index} />
+            <WordCard key={`${word}-${index}`} word={word} index={index} hintsEnabled={hintsEnabled} />
           ))}
         </div>{" "}
         {/* No results */}{" "}
