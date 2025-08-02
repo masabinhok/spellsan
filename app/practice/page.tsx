@@ -6,6 +6,7 @@ import spellingWords from "../../clean_spelling_words.json";
 import AudioButton from "../components/AudioButton";
 import { useAudioPlayer } from "../hooks/useAudioPlayer";
 import { ProgressManager } from "../utils/progressManager";
+import { dictionaryAPI, DictionaryDefinition } from "../utils/dictionaryApi";
 
 interface GameStats {
   correct: number;
@@ -47,6 +48,8 @@ function PracticeComponent() {
   });
   const [timeLeft, setTimeLeft] = useState(30);
   const [isTimerActive, setIsTimerActive] = useState(false);
+  const [currentWordMeaning, setCurrentWordMeaning] = useState<DictionaryDefinition | null>(null);
+  const [showMeaning, setShowMeaning] = useState(false);
 
   const answerRef = useRef<HTMLInputElement | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -186,6 +189,22 @@ function PracticeComponent() {
       return () => clearTimeout(timer);
     }
   }, [currentWord, shouldAutoPlay, isGameActive, gameComplete, playWord]);
+
+  // Fetch word meaning when current word changes
+  useEffect(() => {
+    if (currentWord && isGameActive) {
+      setCurrentWordMeaning(null); // Clear previous meaning
+      setShowMeaning(false); // Hide meaning initially
+
+      dictionaryAPI.getWordMeaning(currentWord)
+        .then(meaning => {
+          setCurrentWordMeaning(meaning);
+        })
+        .catch(error => {
+          console.warn('Failed to fetch word meaning:', error);
+        });
+    }
+  }, [currentWord, isGameActive]);
 
   // Periodic save during active practice
   useEffect(() => {
@@ -568,6 +587,45 @@ function PracticeComponent() {
                   </AudioButton>
                 </div>
 
+                {/* Word Meaning Section */}
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center space-x-2">
+                      <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                      </svg>
+                      <span className="text-sm font-medium text-blue-800">Word Meaning</span>
+                    </div>
+                    <button
+                      onClick={() => setShowMeaning(!showMeaning)}
+                      className="text-xs text-blue-600 hover:text-blue-700 font-medium"
+                    >
+                      {showMeaning ? 'Hide' : 'Show'} Hint
+                    </button>
+                  </div>
+
+                  {showMeaning && currentWordMeaning && (
+                    <div className="space-y-1">
+                      <div className="text-sm text-blue-700">
+                        <span className="font-medium">{currentWordMeaning.partOfSpeech}</span>
+                        {currentWordMeaning.pronunciation && (
+                          <span className="ml-2 text-blue-500">/{currentWordMeaning.pronunciation}/</span>
+                        )}
+                      </div>
+                      <p className="text-sm text-blue-800">{currentWordMeaning.meaning}</p>
+                      {currentWordMeaning.example && (
+                        <p className="text-xs text-blue-600 italic">
+                          Example: "{currentWordMeaning.example}"
+                        </p>
+                      )}
+                    </div>
+                  )}
+
+                  {showMeaning && !currentWordMeaning && (
+                    <div className="text-xs text-blue-600">Loading meaning...</div>
+                  )}
+                </div>
+
                 {/* Input Field - Compact */}
                 <div className="space-y-2">
                   <input
@@ -587,9 +645,25 @@ function PracticeComponent() {
                 {showAnswer && (
                   <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
                     <p className="text-xs text-yellow-800 mb-1">Correct Spelling:</p>
-                    <div className="text-lg font-bold text-yellow-900 tracking-wider">
+                    <div className="text-lg font-bold text-yellow-900 tracking-wider mb-2">
                       {currentWord}
                     </div>
+                    {currentWordMeaning && (
+                      <div className="border-t border-yellow-200 pt-2 mt-2">
+                        <p className="text-xs text-yellow-700 mb-1">Meaning:</p>
+                        <div className="text-sm text-yellow-800">
+                          {currentWordMeaning.partOfSpeech && (
+                            <span className="font-medium">{currentWordMeaning.partOfSpeech}: </span>
+                          )}
+                          {currentWordMeaning.meaning}
+                        </div>
+                        {currentWordMeaning.example && (
+                          <p className="text-xs text-yellow-600 italic mt-1">
+                            "{currentWordMeaning.example}"
+                          </p>
+                        )}
+                      </div>
+                    )}
                   </div>
                 )}
                 {feedback ? (

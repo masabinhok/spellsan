@@ -4,6 +4,82 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import spellingWords from '../../clean_spelling_words.json';
 import { ProgressManager } from '../utils/progressManager';
+import { dictionaryAPI, DictionaryDefinition } from '../utils/dictionaryApi';
+
+// DifficultWordCard component with meaning
+function DifficultWordCard({ word, index }: { word: string; index: number }) {
+  const [meaning, setMeaning] = useState<DictionaryDefinition | null>(null);
+  const [showMeaning, setShowMeaning] = useState(false);
+  const [isLoadingMeaning, setIsLoadingMeaning] = useState(false);
+
+  const fetchMeaning = async () => {
+    if (!meaning && !isLoadingMeaning) {
+      setIsLoadingMeaning(true);
+      try {
+        const wordMeaning = await dictionaryAPI.getWordMeaning(word);
+        setMeaning(wordMeaning);
+      } catch (error) {
+        console.warn('Failed to fetch meaning for', word, error);
+      } finally {
+        setIsLoadingMeaning(false);
+      }
+    }
+    setShowMeaning(!showMeaning);
+  };
+
+  return (
+    <div key={index} className="bg-slate-50 rounded-xl p-4 border border-slate-200 hover:bg-slate-100 transition-all">
+      <div className="flex items-center justify-between mb-2">
+        <span className="font-medium text-slate-800">{word}</span>
+        <div className="flex space-x-2">
+          <button
+            onClick={fetchMeaning}
+            className="text-slate-500 hover:text-blue-600 text-sm font-medium"
+            title="Show meaning"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </button>
+          <Link
+            href={`/practice?word=${word}`}
+            className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+          >
+            Practice
+          </Link>
+        </div>
+      </div>
+
+      {/* Meaning Section */}
+      {showMeaning && (
+        <div className="border-t border-slate-200 pt-2 mt-2">
+          {isLoadingMeaning ? (
+            <div className="text-xs text-slate-500">Loading meaning...</div>
+          ) : meaning ? (
+            <div className="space-y-1">
+              <div className="text-xs text-slate-600">
+                {meaning.partOfSpeech && (
+                  <span className="font-medium text-blue-700">{meaning.partOfSpeech}</span>
+                )}
+                {meaning.pronunciation && (
+                  <span className="ml-2 text-slate-500">/{meaning.pronunciation}/</span>
+                )}
+              </div>
+              <p className="text-xs text-slate-700">{meaning.meaning}</p>
+              {meaning.example && (
+                <p className="text-xs text-slate-500 italic">
+                  "{meaning.example}"
+                </p>
+              )}
+            </div>
+          ) : (
+            <div className="text-xs text-slate-500">Meaning not available</div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
 
 interface ProgressStats {
   totalWords: number;
@@ -386,17 +462,7 @@ export default function Progress() {
             <h2 className="text-2xl font-bold text-slate-800 mb-6">Words to Practice</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {stats.difficultWords.slice(0, 12).map((word, index) => (
-                <div key={index} className="bg-slate-50 rounded-xl p-4 border border-slate-200">
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium text-slate-800">{word}</span>
-                    <Link
-                      href={`/practice?word=${word}`}
-                      className="text-blue-600 hover:text-blue-700 text-sm font-medium"
-                    >
-                      Practice
-                    </Link>
-                  </div>
-                </div>
+                <DifficultWordCard key={`${word}-${index}`} word={word} index={index} />
               ))}
             </div>
             {stats.difficultWords.length > 12 && (

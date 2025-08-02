@@ -1,10 +1,116 @@
 "use client";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import spellingWords from "../../clean_spelling_words.json";
 import { speakWordInBritishEnglish } from "../utils/speech";
+import { dictionaryAPI, DictionaryDefinition } from "../utils/dictionaryApi";
+
+// WordCard component with meaning functionality
+function WordCard({ word, index }: { word: string; index: number }) {
+  const [meaning, setMeaning] = useState<DictionaryDefinition | null>(null);
+  const [showMeaning, setShowMeaning] = useState(false);
+  const [isLoadingMeaning, setIsLoadingMeaning] = useState(false);
+
+  const speakWord = (word: string) => {
+    speakWordInBritishEnglish(word);
+  };
+
+  const fetchMeaning = async () => {
+    if (!meaning && !isLoadingMeaning) {
+      setIsLoadingMeaning(true);
+      try {
+        const wordMeaning = await dictionaryAPI.getWordMeaning(word);
+        setMeaning(wordMeaning);
+      } catch (error) {
+        console.warn('Failed to fetch meaning for', word, error);
+      } finally {
+        setIsLoadingMeaning(false);
+      }
+    }
+    setShowMeaning(!showMeaning);
+  };
+
+  return (
+    <div
+      key={`${word}-${index}`}
+      className="group bg-white rounded-xl md:rounded-2xl shadow-lg border border-slate-200 p-3 md:p-4 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 active:scale-95"
+    >
+      <div className="flex items-center justify-between mb-2 md:mb-3">
+        <span className="text-base md:text-lg font-semibold text-slate-800">
+          {word}
+        </span>
+        <div className="flex space-x-1">
+          <button
+            onClick={() => speakWord(word)}
+            className="w-7 h-7 md:w-8 md:h-8 bg-blue-100 rounded-lg flex items-center justify-center hover:bg-blue-200 transition-all group-hover:scale-110"
+            title="Pronounce word"
+          >
+            <svg
+              className="w-3 h-3 md:w-4 md:h-4 text-blue-600"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
+            </svg>
+          </button>
+          <button
+            onClick={fetchMeaning}
+            className="w-7 h-7 md:w-8 md:h-8 bg-green-100 rounded-lg flex items-center justify-center hover:bg-green-200 transition-all group-hover:scale-110"
+            title="Show meaning"
+          >
+            <svg
+              className="w-3 h-3 md:w-4 md:h-4 text-green-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      {/* Word Details */}
+      <div className="flex items-center justify-between text-sm text-slate-500 mb-2">
+        <span>{word.length} letters</span>
+        <span className="bg-blue-100 px-2 py-1 rounded-md text-blue-600 font-medium">
+          {word.charAt(0).toUpperCase()}
+        </span>
+      </div>
+
+      {/* Meaning Section */}
+      {showMeaning && (
+        <div className="border-t border-slate-200 pt-2 mt-2">
+          {isLoadingMeaning ? (
+            <div className="text-xs text-slate-500">Loading meaning...</div>
+          ) : meaning ? (
+            <div className="space-y-1">
+              <div className="text-xs text-slate-600">
+                {meaning.partOfSpeech && (
+                  <span className="font-medium text-green-700">{meaning.partOfSpeech}</span>
+                )}
+                {meaning.pronunciation && (
+                  <span className="ml-2 text-slate-500">/{meaning.pronunciation}/</span>
+                )}
+              </div>
+              <p className="text-xs text-slate-700">{meaning.meaning}</p>
+              {meaning.example && (
+                <p className="text-xs text-slate-500 italic">
+                  "{meaning.example}"
+                </p>
+              )}
+            </div>
+          ) : (
+            <div className="text-xs text-slate-500">Meaning not available</div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
 export default function LearnWords() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedAlphabet, setSelectedAlphabet] = useState("");
+
   const filteredWords = useMemo(() => {
     let words = spellingWords;
     if (selectedAlphabet) {
@@ -27,9 +133,7 @@ export default function LearnWords() {
     ).length;
     return { letter, count };
   }).filter((item) => item.count > 0);
-  const speakWord = (word: string) => {
-    speakWordInBritishEnglish(word);
-  };
+
   const clearFilters = () => {
     setSearchTerm("");
     setSelectedAlphabet("");
@@ -123,39 +227,8 @@ export default function LearnWords() {
         {/* Words Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
           {filteredWords.map((word, index) => (
-            <div
-              key={`${word}-${index}`}
-              className="group bg-white rounded-xl md:rounded-2xl shadow-lg border border-slate-200 p-3 md:p-4 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 active:scale-95"
-            >
-              <div className="flex items-center justify-between mb-2 md:mb-3">
-                <span className="text-base md:text-lg font-semibold text-slate-800">
-                  {word}
-                </span>
-                <button
-                  onClick={() => speakWord(word)}
-                  className="w-7 h-7 md:w-8 md:h-8 bg-blue-100 rounded-lg flex items-center justify-center hover:bg-blue-200 transition-all group-hover:scale-110"
-                  title="Pronounce word"
-                >
-                  <svg
-                    className="w-3 h-3 md:w-4 md:h-4 text-blue-600"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    {" "}
-                    <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />{" "}
-                  </svg>{" "}
-                </button>{" "}
-              </div>{" "}
-              <div className="flex items-center justify-between text-sm text-slate-500">
-                {" "}
-                <span>{word.length} letters</span>{" "}
-                <span className="bg-blue-100 px-2 py-1 rounded-md text-blue-600 font-medium">
-                  {" "}
-                  {word.charAt(0).toUpperCase()}{" "}
-                </span>{" "}
-              </div>{" "}
-            </div>
-          ))}{" "}
+            <WordCard key={`${word}-${index}`} word={word} index={index} />
+          ))}
         </div>{" "}
         {/* No results */}{" "}
         {filteredWords.length === 0 && (
