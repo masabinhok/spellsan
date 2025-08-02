@@ -255,7 +255,7 @@ function PracticeComponent() {
     setFeedback("");
     setShowAnswer(false);
     setUserInput("");
-    setShouldAutoPlay(false); // Don't auto-play the first word
+    setShouldAutoPlay(true); // Enable auto-play for the first word
 
     // Initialize session tracking and start practice session
     setSessionData({
@@ -272,7 +272,7 @@ function PracticeComponent() {
       const randomIndex = Math.floor(Math.random() * smartWords.length);
       setCurrentWord(smartWords[randomIndex]);
       setUsedWords([smartWords[randomIndex]]);
-      // Start timer for the first word
+      // Start timer for the first word and auto-play audio
       setTimeout(() => startTimer(), 500); // Small delay to let the word load
     }
   };
@@ -397,16 +397,16 @@ function PracticeComponent() {
   }, [gameComplete, stats, sessionData, mode, selectedAlphabet]);
   if (isGameActive) {
     return (
-      <div className="bg-slate-50 min-h-screen">
-        <div className="container mx-auto px-4 py-6 md:py-12 max-w-4xl">
-          <div className="bg-white rounded-2xl md:rounded-3xl shadow-xl border border-slate-200 p-4 md:p-8">
-            {/* Game Header */}
-            <div className="flex justify-between items-start md:items-center mb-6 md:mb-8">
-              <div className="flex items-start md:items-center space-x-3">
-                <div className="w-8 h-8 md:w-10 md:h-10 bg-blue-600 rounded-lg md:rounded-xl flex items-center justify-center flex-shrink-0">
+      <div className="bg-slate-50 min-h-screen flex items-center justify-center">
+        <div className="container mx-auto px-4 py-4 max-w-4xl">
+          <div className="bg-white rounded-2xl shadow-xl border border-slate-200 p-4 md:p-6">
+            {/* Game Header - Compact */}
+            <div className="flex justify-between items-center mb-4">
+              <div className="flex items-center space-x-2">
+                <div className="w-6 h-6 md:w-8 md:h-8 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
                   {mode === "random" ? (
                     <svg
-                      className="w-4 h-4 md:w-5 md:h-5 text-white"
+                      className="w-3 h-3 md:w-4 md:h-4 text-white"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -420,7 +420,7 @@ function PracticeComponent() {
                     </svg>
                   ) : (
                     <svg
-                      className="w-4 h-4 md:w-5 md:h-5 text-white"
+                      className="w-3 h-3 md:w-4 md:h-4 text-white"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -435,52 +435,47 @@ function PracticeComponent() {
                   )}
                 </div>
                 <div>
-                  <h2 className="text-lg md:text-2xl font-bold text-slate-800">
+                  <h2 className="text-sm md:text-lg font-bold text-slate-800">
                     {mode === "random"
                       ? "Random Practice"
                       : `Letter "${selectedAlphabet}" Practice`}
                   </h2>
-                  <p className="text-xs md:text-sm text-slate-600">
-                    {availableWords.length} words available
-                  </p>
-                  {availableWords.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mt-1">
-                      {(() => {
-                        const currentProgress = ProgressManager.loadProgress();
-                        const difficult = availableWords.filter(w => currentProgress.difficultWords.includes(w)).length;
-                        const learned = availableWords.filter(w => currentProgress.wordsLearned.includes(w)).length;
-                        const newWords = availableWords.length - difficult - learned;
+                  <div className="flex items-center gap-2 text-xs text-slate-600">
+                    <span>{availableWords.length} words</span>
+                    {availableWords.length > 0 && (
+                      <>
+                        {(() => {
+                          const currentProgress = ProgressManager.loadProgress();
+                          const difficult = availableWords.filter(w => currentProgress.difficultWords.includes(w)).length;
+                          const learned = availableWords.filter(w => currentProgress.wordsLearned.includes(w)).length;
+                          const newWords = availableWords.length - difficult - learned;
 
-                        return (
-                          <>
-                            {newWords > 0 && (
-                              <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">
-                                {newWords} new
-                              </span>
-                            )}
-                            {difficult > 0 && (
-                              <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded">
-                                {difficult} difficult
-                              </span>
-                            )}
-                            {learned > 0 && (
-                              <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">
-                                {learned} review
-                              </span>
-                            )}
-                          </>
-                        );
-                      })()}
-                    </div>
-                  )}
+                          return (
+                            <>
+                              {newWords > 0 && (
+                                <span className="bg-blue-100 text-blue-700 px-1 py-0.5 rounded text-xs">
+                                  {newWords} new
+                                </span>
+                              )}
+                              {difficult > 0 && (
+                                <span className="bg-red-100 text-red-700 px-1 py-0.5 rounded text-xs">
+                                  {difficult} hard
+                                </span>
+                              )}
+                            </>
+                          );
+                        })()}
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
               <button
                 onClick={resetGame}
-                className="flex items-center space-x-1 md:space-x-2 px-3 md:px-4 py-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg md:rounded-xl transition-all"
+                className="flex items-center space-x-1 px-2 py-1 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-all text-sm"
               >
                 <svg
-                  className="w-4 h-4 md:w-5 md:h-5"
+                  className="w-4 h-4"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -492,92 +487,77 @@ function PracticeComponent() {
                     d="M6 18L18 6M6 6l12 12"
                   />
                 </svg>
-                <span className="text-sm md:text-base">Exit</span>
+                <span>Exit</span>
               </button>
             </div>
-            {/* Progress Stats */}
-            <div className="bg-blue-50 rounded-xl md:rounded-2xl p-4 md:p-6 mb-6 md:mb-8 border border-blue-100">
-              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-3 md:mb-4">
-                <h3 className="font-semibold text-slate-800 mb-2 sm:mb-0">
-                  Your Progress
-                </h3>
+
+            {/* Compact Progress Stats */}
+            <div className="bg-blue-50 rounded-lg p-3 mb-4 border border-blue-100">
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-sm font-semibold text-slate-800">Progress</span>
                 <span className="text-sm text-slate-600">
-                  {stats.total > 0
-                    ? Math.round((stats.correct / stats.total) * 100)
-                    : 0}
-                  % Accuracy
+                  {stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 0}% Accuracy
                 </span>
               </div>
-              <div className="flex flex-wrap items-center gap-3 md:gap-6 text-xs md:text-sm">
-                <div className="flex items-center space-x-2">
-                  <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                  <span className="text-slate-700">
-                    Words: {stats.total}
-                  </span>
+              <div className="flex items-center gap-4 text-xs mb-2">
+                <div className="flex items-center space-x-1">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  <span className="text-slate-700">Words: {stats.total}</span>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                  <span className="text-slate-700">
-                    Correct: {stats.correct}
-                  </span>
+                <div className="flex items-center space-x-1">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <span className="text-slate-700">Correct: {stats.correct}</span>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                  <span className="text-slate-700">
-                    Incorrect: {stats.incorrect}
-                  </span>
+                <div className="flex items-center space-x-1">
+                  <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                  <span className="text-slate-700">Incorrect: {stats.incorrect}</span>
                 </div>
               </div>
-              <div className="mt-3 md:mt-4">
-                <div className="w-full bg-slate-200 rounded-full h-2">
-                  <div
-                    className="bg-blue-600 h-2 rounded-full transition-all duration-500"
-                    style={{
-                      width: `${stats.total > 0 ? (stats.correct / stats.total) * 100 : 0}%`,
-                    }}
-                  ></div>
-                </div>
+              <div className="w-full bg-slate-200 rounded-full h-1.5">
+                <div
+                  className="bg-blue-600 h-1.5 rounded-full transition-all duration-500"
+                  style={{
+                    width: `${stats.total > 0 ? (stats.correct / stats.total) * 100 : 0}%`,
+                  }}
+                ></div>
               </div>
             </div>
             {!gameComplete ? (
-              <div className="text-center space-y-6 md:space-y-8">
-                {/* Word Category Indicator */}
-                {currentWord && (
-                  <div className="flex justify-center">
-                    <div className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${getWordCategory(currentWord).color}`}>
+              <div className="text-center space-y-4">
+                {/* Word Category and Timer Row */}
+                <div className="flex justify-center items-center gap-4">
+                  {currentWord && (
+                    <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${getWordCategory(currentWord).color}`}>
                       {getWordCategory(currentWord).label}
                     </div>
-                  </div>
-                )}
+                  )}
 
-                {/* Timer Display */}
-                {isTimerActive && !feedback && (
-                  <div className="flex justify-center">
-                    <div className={`inline-flex items-center px-4 py-2 rounded-xl text-lg font-bold border-2 transition-all ${timeLeft <= 10
-                        ? 'text-red-600 bg-red-50 border-red-200 animate-pulse'
-                        : timeLeft <= 20
-                          ? 'text-yellow-600 bg-yellow-50 border-yellow-200'
-                          : 'text-blue-600 bg-blue-50 border-blue-200'
+                  {isTimerActive && !feedback && (
+                    <div className={`inline-flex items-center px-3 py-1 rounded-lg text-sm font-bold border transition-all ${timeLeft <= 10
+                      ? 'text-red-600 bg-red-50 border-red-200 animate-pulse'
+                      : timeLeft <= 20
+                        ? 'text-yellow-600 bg-yellow-50 border-yellow-200'
+                        : 'text-blue-600 bg-blue-50 border-blue-200'
                       }`}>
-                      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
                       {timeLeft}s
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
 
-                {/* Audio Button */}
-                <div className="space-y-3 md:space-y-4">
+                {/* Audio Button - Compact */}
+                <div>
                   <AudioButton
                     word={currentWord}
                     size="lg"
                     variant="primary"
-                    className="group font-bold py-3 px-6 md:py-4 md:px-8 rounded-xl md:rounded-2xl shadow-lg hover:shadow-xl focus:ring-4 focus:ring-blue-100 w-auto h-auto"
+                    className="group font-bold py-2 px-4 md:py-3 md:px-6 rounded-xl shadow-lg hover:shadow-xl focus:ring-4 focus:ring-blue-100 w-auto h-auto"
                   >
-                    <div className="flex items-center space-x-2 md:space-x-3">
+                    <div className="flex items-center space-x-2">
                       <svg
-                        className="w-5 h-5 md:w-6 md:h-6 group-hover:scale-110 transition-transform"
+                        className="w-4 h-4 md:w-5 md:h-5 group-hover:scale-110 transition-transform"
                         fill="currentColor"
                         viewBox="0 0 24 24"
                       >
@@ -586,19 +566,10 @@ function PracticeComponent() {
                       <span className="text-sm md:text-base">Hear Word</span>
                     </div>
                   </AudioButton>
-                  {showAnswer && (
-                    <div className="bg-yellow-50 border border-yellow-200 rounded-xl md:rounded-2xl p-3 md:p-4">
-                      <p className="text-xs md:text-sm text-yellow-800 mb-2">
-                        Correct Spelling:
-                      </p>
-                      <div className="text-xl md:text-2xl font-bold text-yellow-900 tracking-wider">
-                        {currentWord}
-                      </div>
-                    </div>
-                  )}
                 </div>
-                {/* Input Field */}
-                <div className="space-y-3 md:space-y-4">
+
+                {/* Input Field - Compact */}
+                <div className="space-y-2">
                   <input
                     ref={answerRef}
                     type="text"
@@ -606,39 +577,40 @@ function PracticeComponent() {
                     onChange={(e) => setUserInput(e.target.value)}
                     onKeyDown={handleKeyPress}
                     placeholder="Type the spelling here..."
-                    className="w-full p-4 md:p-6 text-lg md:text-xl text-center border-2 border-slate-200 rounded-xl md:rounded-2xl focus:border-blue-500 bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all disabled:opacity-50"
+                    className="w-full p-3 md:p-4 text-lg text-center border-2 border-slate-200 rounded-xl focus:border-blue-500 bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all disabled:opacity-50"
                     disabled={!!feedback}
                     autoFocus
                   />
-                  {!feedback && userInput.trim() && (
-                    <button
-                      onClick={checkSpelling}
-                      className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-xl transition-all disabled:opacity-50"
-                      disabled={!!feedback || !userInput.trim()}
-                    >
-                      Submit Answer
-                    </button>
-                  )}
                 </div>
+
+                {/* Feedback - Show answer inline if needed */}
+                {showAnswer && (
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                    <p className="text-xs text-yellow-800 mb-1">Correct Spelling:</p>
+                    <div className="text-lg font-bold text-yellow-900 tracking-wider">
+                      {currentWord}
+                    </div>
+                  </div>
+                )}
                 {feedback ? (
                   <div
-                    className={`p-4 md:p-6 rounded-xl md:rounded-2xl border-2 ${feedback.includes("Correct")
+                    className={`p-3 rounded-lg border-2 ${feedback.includes("Correct")
                       ? "bg-green-50 border-green-200"
                       : "bg-red-50 border-red-200"
                       }`}
                   >
-                    <div className="flex items-center justify-center space-x-3 mb-2">
+                    <div className="flex items-center justify-center space-x-2 mb-2">
                       <div
-                        className={`w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center ${feedback.includes("Correct") ? "bg-green-500" : "bg-red-500"
+                        className={`w-6 h-6 rounded-full flex items-center justify-center ${feedback.includes("Correct") ? "bg-green-500" : "bg-red-500"
                           }`}
                       >
-                        <span className="text-white text-lg md:text-xl">
+                        <span className="text-white text-sm">
                           {feedback.includes("Correct") ? "✓" : "✗"}
                         </span>
                       </div>
                     </div>
                     <div
-                      className={`text-base md:text-lg font-semibold ${feedback.includes("Correct") ? "text-green-800" : "text-red-800"
+                      className={`text-sm font-semibold ${feedback.includes("Correct") ? "text-green-800" : "text-red-800"
                         }`}
                     >
                       {feedback}
@@ -648,12 +620,12 @@ function PracticeComponent() {
                   <button
                     onClick={checkSpelling}
                     disabled={!userInput.trim()}
-                    className="bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 text-white font-bold py-3 px-6 md:py-4 md:px-10 rounded-xl md:rounded-2xl transition-all duration-300 transform hover:scale-105 disabled:hover:scale-100 shadow-lg hover:shadow-xl disabled:shadow-md focus:outline-none focus:ring-4 focus:ring-blue-100 disabled:cursor-not-allowed active:scale-95"
+                    className="bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 text-white font-bold py-2 px-6 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg disabled:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed"
                   >
                     <div className="flex items-center space-x-2">
-                      <span className="text-sm md:text-base">Check Spelling</span>
+                      <span className="text-sm">Check Spelling</span>
                       <svg
-                        className="w-4 h-4 md:w-5 md:h-5"
+                        className="w-4 h-4"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -670,53 +642,53 @@ function PracticeComponent() {
                 )}
               </div>
             ) : (
-              <div className="text-center space-y-6 md:space-y-8">
-                <div className="bg-yellow-50 rounded-2xl md:rounded-3xl p-4 md:p-8 border-2 border-yellow-200">
-                  <div className="text-4xl md:text-6xl mb-3 md:mb-4">🎉</div>
-                  <h3 className="text-2xl md:text-3xl font-bold text-slate-800 mb-3 md:mb-4">
+              <div className="text-center space-y-4">
+                <div className="bg-yellow-50 rounded-xl p-4 border-2 border-yellow-200">
+                  <div className="text-3xl mb-2">🎉</div>
+                  <h3 className="text-xl font-bold text-slate-800 mb-2">
                     Excellent Work!
                   </h3>
-                  <div className="text-lg md:text-xl text-slate-700 mb-4 md:mb-6">
+                  <div className="text-sm text-slate-700 mb-3">
                     {feedback}
                   </div>
-                  <div className="grid grid-cols-3 gap-2 md:gap-4 mb-4 md:mb-6">
-                    <div className="bg-white/50 rounded-xl md:rounded-2xl p-3 md:p-4">
-                      <div className="text-lg md:text-2xl font-bold text-blue-600">
+                  <div className="grid grid-cols-3 gap-2 mb-3">
+                    <div className="bg-white/50 rounded-lg p-2">
+                      <div className="text-lg font-bold text-blue-600">
                         {stats.total}
                       </div>
-                      <div className="text-xs md:text-sm text-slate-600">
-                        Words Practiced
+                      <div className="text-xs text-slate-600">
+                        Words
                       </div>
                     </div>
-                    <div className="bg-white/50 rounded-xl md:rounded-2xl p-3 md:p-4">
-                      <div className="text-lg md:text-2xl font-bold text-green-600">
+                    <div className="bg-white/50 rounded-lg p-2">
+                      <div className="text-lg font-bold text-green-600">
                         {stats.correct}
                       </div>
-                      <div className="text-xs md:text-sm text-slate-600">Correct</div>
+                      <div className="text-xs text-slate-600">Correct</div>
                     </div>
-                    <div className="bg-white/50 rounded-xl md:rounded-2xl p-3 md:p-4">
-                      <div className="text-lg md:text-2xl font-bold text-blue-600">
+                    <div className="bg-white/50 rounded-lg p-2">
+                      <div className="text-lg font-bold text-blue-600">
                         {stats.total > 0
                           ? Math.round((stats.correct / stats.total) * 100)
                           : 0}
                         %
                       </div>
-                      <div className="text-xs md:text-sm text-slate-600">
+                      <div className="text-xs text-slate-600">
                         Accuracy
                       </div>
                     </div>
                   </div>
                 </div>
-                <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center">
+                <div className="flex flex-col sm:flex-row gap-2 justify-center">
                   <button
                     onClick={() => startPractice(mode!, selectedAlphabet)}
-                    className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 md:px-8 rounded-xl md:rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-blue-100 active:scale-95"
+                    className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-all text-sm"
                   >
                     Practice Again
                   </button>
                   <Link
                     href="/"
-                    className="bg-slate-200 text-slate-700 font-bold py-3 px-6 md:px-8 rounded-xl md:rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl text-center"
+                    className="bg-slate-200 text-slate-700 font-bold py-2 px-4 rounded-lg transition-all text-center text-sm"
                   >
                     Back to Dashboard
                   </Link>
