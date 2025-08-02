@@ -45,8 +45,70 @@ function PracticeComponent() {
     wordsCorrect: [],
     wordsIncorrect: [],
   });
+  const [timeLeft, setTimeLeft] = useState(30);
+  const [isTimerActive, setIsTimerActive] = useState(false);
 
   const answerRef = useRef<HTMLInputElement | null>(null);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Timer effect
+  useEffect(() => {
+    if (isTimerActive && timeLeft > 0 && !feedback && isGameActive) {
+      timerRef.current = setTimeout(() => {
+        setTimeLeft(prev => prev - 1);
+      }, 1000);
+    } else if (timeLeft === 0 && !feedback && isGameActive) {
+      // Time's up - mark as incorrect
+      handleTimeUp();
+    }
+
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+    };
+  }, [timeLeft, isTimerActive, feedback, isGameActive]);
+
+  // Handle when time runs out
+  const handleTimeUp = () => {
+    const newStats = {
+      correct: stats.correct,
+      incorrect: stats.incorrect + 1,
+      total: stats.total + 1,
+    };
+    setStats(newStats);
+
+    // Update progress in real-time
+    ProgressManager.updateWordProgress(currentWord, false);
+
+    // Track words for session data
+    setSessionData(prev => ({
+      ...prev,
+      wordsIncorrect: [...prev.wordsIncorrect, currentWord],
+    }));
+
+    setFeedback(`Time's up! The correct spelling is: ${currentWord}`);
+    setShowAnswer(true);
+    setIsTimerActive(false);
+
+    setTimeout(() => {
+      if (!gameComplete) nextWord();
+    }, 3000); // Show answer for 3 seconds when time runs out
+  };
+
+  // Reset timer when new word starts
+  const startTimer = () => {
+    setTimeLeft(30);
+    setIsTimerActive(true);
+  };
+
+  // Stop timer
+  const stopTimer = () => {
+    setIsTimerActive(false);
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+    }
+  };
 
   // Helper function to get word category
   const getWordCategory = (word: string) => {
@@ -63,6 +125,9 @@ function PracticeComponent() {
   // Save progress before unloading the page
   useEffect(() => {
     const handleBeforeUnload = () => {
+      // Stop timer on unload
+      stopTimer();
+
       if (isGameActive && stats.total > 0) {
         const finalSessionData = {
           ...sessionData,
@@ -86,7 +151,7 @@ function PracticeComponent() {
 
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
-      // Also save on component unmount
+      // Also save on component unmount and cleanup timer
       handleBeforeUnload();
     };
   }, [isGameActive, stats, sessionData, mode, selectedAlphabet]);
@@ -207,6 +272,8 @@ function PracticeComponent() {
       const randomIndex = Math.floor(Math.random() * smartWords.length);
       setCurrentWord(smartWords[randomIndex]);
       setUsedWords([smartWords[randomIndex]]);
+      // Start timer for the first word
+      setTimeout(() => startTimer(), 500); // Small delay to let the word load
     }
   };
   const nextWord = () => {
@@ -215,12 +282,17 @@ function PracticeComponent() {
       setCurrentWord(word);
       setUsedWords((prev) => [...prev, word]);
       setShouldAutoPlay(true); // Enable auto-play for the new word
+      // Start timer for the new word
+      setTimeout(() => startTimer(), 500); // Small delay to let the word load
     }
     setUserInput("");
     setFeedback("");
     setShowAnswer(false);
   };
   const checkSpelling = () => {
+    // Stop the timer
+    stopTimer();
+
     const isCorrect =
       userInput.toLowerCase().trim() === currentWord.toLowerCase();
     const newStats = {
@@ -261,6 +333,9 @@ function PracticeComponent() {
   };
 
   const resetGame = () => {
+    // Stop and cleanup timer
+    stopTimer();
+
     // Save progress if there was any practice
     if (stats.total > 0) {
       const finalSessionData = {
@@ -290,9 +365,14 @@ function PracticeComponent() {
     setShowAnswer(false);
     setMode(null);
     setShouldAutoPlay(false);
+    setTimeLeft(30);
+    setIsTimerActive(false);
   };
   useEffect(() => {
     if (gameComplete) {
+      // Stop timer when game completes
+      stopTimer();
+
       setFeedback(
         `Practice Complete! Final Score: ${stats.correct}/${stats.total} (${Math.round((stats.correct / stats.total) * 100)}%)`,
       );
@@ -470,6 +550,23 @@ function PracticeComponent() {
                   </div>
                 )}
 
+                {/* Timer Display */}
+                {isTimerActive && !feedback && (
+                  <div className="flex justify-center">
+                    <div className={`inline-flex items-center px-4 py-2 rounded-xl text-lg font-bold border-2 transition-all ${timeLeft <= 10
+                        ? 'text-red-600 bg-red-50 border-red-200 animate-pulse'
+                        : timeLeft <= 20
+                          ? 'text-yellow-600 bg-yellow-50 border-yellow-200'
+                          : 'text-blue-600 bg-blue-50 border-blue-200'
+                      }`}>
+                      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      {timeLeft}s
+                    </div>
+                  </div>
+                )}
+
                 {/* Audio Button */}
                 <div className="space-y-3 md:space-y-4">
                   <AudioButton
@@ -513,6 +610,15 @@ function PracticeComponent() {
                     disabled={!!feedback}
                     autoFocus
                   />
+                  {!feedback && userInput.trim() && (
+                    <button
+                      onClick={checkSpelling}
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-xl transition-all disabled:opacity-50"
+                      disabled={!!feedback || !userInput.trim()}
+                    >
+                      Submit Answer
+                    </button>
+                  )}
                 </div>
                 {feedback ? (
                   <div
