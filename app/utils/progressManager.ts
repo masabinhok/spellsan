@@ -98,6 +98,80 @@ export class ProgressManager {
     }
   }
 
+  static getSmartWordSelection(
+    allWords: string[], 
+    mode: 'random' | 'alphabet', 
+    alphabet?: string
+  ): string[] {
+    if (typeof window === 'undefined') return allWords;
+
+    try {
+      const stats = this.loadProgress();
+      
+      // Filter words by alphabet if needed
+      let baseWords = allWords;
+      if (mode === 'alphabet' && alphabet) {
+        baseWords = allWords.filter(
+          word => word.charAt(0).toUpperCase() === alphabet.toUpperCase()
+        );
+      }
+
+      // Categorize words
+      const learnedWords = baseWords.filter(word => stats.wordsLearned.includes(word));
+      const difficultWords = baseWords.filter(word => stats.difficultWords.includes(word));
+      const newWords = baseWords.filter(word => 
+        !stats.wordsLearned.includes(word) && !stats.difficultWords.includes(word)
+      );
+
+      // If no difficult or new words, return learned words for review (this prevents empty practice sessions)
+      if (difficultWords.length === 0 && newWords.length === 0) {
+        return learnedWords.length > 0 ? [...learnedWords].sort(() => Math.random() - 0.5) : baseWords;
+      }
+
+      // Priority: difficult words (60%), new words (40%)
+      const practiceWords: string[] = [];
+      
+      // Add difficult words (high priority)
+      if (difficultWords.length > 0) {
+        const difficultCount = Math.max(1, Math.ceil(difficultWords.length * 0.8)); // Include most difficult words
+        const shuffledDifficult = [...difficultWords].sort(() => Math.random() - 0.5);
+        practiceWords.push(...shuffledDifficult.slice(0, Math.min(difficultCount, difficultWords.length)));
+      }
+
+      // Add new words (medium-high priority)
+      if (newWords.length > 0) {
+        const targetTotal = Math.max(20, Math.floor(baseWords.length * 0.3)); // Target practice size
+        const remainingSlots = targetTotal - practiceWords.length;
+        if (remainingSlots > 0) {
+          const newCount = Math.min(remainingSlots, newWords.length);
+          const shuffledNew = [...newWords].sort(() => Math.random() - 0.5);
+          practiceWords.push(...shuffledNew.slice(0, newCount));
+        }
+      }
+
+      // Add some learned words for reinforcement only if we have room and few difficult/new words
+      if (practiceWords.length < 15 && learnedWords.length > 0) {
+        const remainingSlots = 15 - practiceWords.length;
+        const reviewCount = Math.min(remainingSlots, Math.floor(learnedWords.length * 0.1), 5);
+        if (reviewCount > 0) {
+          const shuffledLearned = [...learnedWords].sort(() => Math.random() - 0.5);
+          practiceWords.push(...shuffledLearned.slice(0, reviewCount));
+        }
+      }
+
+      // Ensure we have at least some words to practice
+      if (practiceWords.length === 0) {
+        return baseWords.slice(0, 20).sort(() => Math.random() - 0.5);
+      }
+
+      // Shuffle the final practice words
+      return practiceWords.sort(() => Math.random() - 0.5);
+    } catch (error) {
+      console.error('Error getting smart word selection:', error);
+      return allWords;
+    }
+  }
+
   static startPracticeSession(): void {
     if (typeof window === 'undefined') return;
 

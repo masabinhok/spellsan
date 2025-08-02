@@ -48,6 +48,18 @@ function PracticeComponent() {
 
   const answerRef = useRef<HTMLInputElement | null>(null);
 
+  // Helper function to get word category
+  const getWordCategory = (word: string) => {
+    const currentProgress = ProgressManager.loadProgress();
+    if (currentProgress.difficultWords.includes(word)) {
+      return { type: 'difficult', label: 'Difficult Word', color: 'text-red-600 bg-red-50 border-red-200' };
+    } else if (currentProgress.wordsLearned.includes(word)) {
+      return { type: 'learned', label: 'Review Word', color: 'text-green-600 bg-green-50 border-green-200' };
+    } else {
+      return { type: 'new', label: 'New Word', color: 'text-blue-600 bg-blue-50 border-blue-200' };
+    }
+  };
+
   // Save progress before unloading the page
   useEffect(() => {
     const handleBeforeUnload = () => {
@@ -84,14 +96,17 @@ function PracticeComponent() {
     const alphabetParam = searchParams.get("alphabet");
     if (modeParam === "random") {
       setMode("random");
-      setAvailableWords(spellingWords);
+      const smartWords = ProgressManager.getSmartWordSelection(spellingWords, "random");
+      setAvailableWords(smartWords);
     } else if (alphabetParam) {
       setMode("alphabet");
       setSelectedAlphabet(alphabetParam.toUpperCase());
-      const wordsForAlphabet = spellingWords.filter(
-        (word) => word.charAt(0).toUpperCase() === alphabetParam.toUpperCase(),
+      const smartWords = ProgressManager.getSmartWordSelection(
+        spellingWords,
+        "alphabet",
+        alphabetParam.toUpperCase()
       );
-      setAvailableWords(wordsForAlphabet);
+      setAvailableWords(smartWords);
     }
   }, [searchParams]);
 
@@ -155,18 +170,19 @@ function PracticeComponent() {
     practiceMode: "random" | "alphabet",
     alphabet?: string,
   ) => {
-    let words: string[];
-    if (practiceMode === "random") {
-      words = spellingWords;
-      setMode("random");
-    } else {
-      words = spellingWords.filter(
-        (word) => word.charAt(0).toUpperCase() === alphabet?.toUpperCase(),
-      );
-      setMode("alphabet");
+    // Get smart word selection based on progress
+    const smartWords = ProgressManager.getSmartWordSelection(
+      spellingWords,
+      practiceMode,
+      alphabet
+    );
+
+    setAvailableWords(smartWords);
+    setMode(practiceMode);
+    if (practiceMode === "alphabet") {
       setSelectedAlphabet(alphabet?.toUpperCase() || "");
     }
-    setAvailableWords(words);
+
     setIsGameActive(true);
     setGameComplete(false);
     setStats({ correct: 0, incorrect: 0, total: 0 });
@@ -187,10 +203,10 @@ function PracticeComponent() {
     // Start practice session in progress manager
     ProgressManager.startPracticeSession();
 
-    if (words.length > 0) {
-      const randomIndex = Math.floor(Math.random() * words.length);
-      setCurrentWord(words[randomIndex]);
-      setUsedWords([words[randomIndex]]);
+    if (smartWords.length > 0) {
+      const randomIndex = Math.floor(Math.random() * smartWords.length);
+      setCurrentWord(smartWords[randomIndex]);
+      setUsedWords([smartWords[randomIndex]]);
     }
   };
   const nextWord = () => {
@@ -347,6 +363,36 @@ function PracticeComponent() {
                   <p className="text-xs md:text-sm text-slate-600">
                     {availableWords.length} words available
                   </p>
+                  {availableWords.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-1">
+                      {(() => {
+                        const currentProgress = ProgressManager.loadProgress();
+                        const difficult = availableWords.filter(w => currentProgress.difficultWords.includes(w)).length;
+                        const learned = availableWords.filter(w => currentProgress.wordsLearned.includes(w)).length;
+                        const newWords = availableWords.length - difficult - learned;
+
+                        return (
+                          <>
+                            {newWords > 0 && (
+                              <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">
+                                {newWords} new
+                              </span>
+                            )}
+                            {difficult > 0 && (
+                              <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded">
+                                {difficult} difficult
+                              </span>
+                            )}
+                            {learned > 0 && (
+                              <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">
+                                {learned} review
+                              </span>
+                            )}
+                          </>
+                        );
+                      })()}
+                    </div>
+                  )}
                 </div>
               </div>
               <button
@@ -415,6 +461,15 @@ function PracticeComponent() {
             </div>
             {!gameComplete ? (
               <div className="text-center space-y-6 md:space-y-8">
+                {/* Word Category Indicator */}
+                {currentWord && (
+                  <div className="flex justify-center">
+                    <div className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${getWordCategory(currentWord).color}`}>
+                      {getWordCategory(currentWord).label}
+                    </div>
+                  </div>
+                )}
+
                 {/* Audio Button */}
                 <div className="space-y-3 md:space-y-4">
                   <AudioButton
