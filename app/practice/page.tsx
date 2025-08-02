@@ -5,11 +5,19 @@ import Link from "next/link";
 import spellingWords from "../../clean_spelling_words.json";
 import AudioButton from "../components/AudioButton";
 import { useAudioPlayer } from "../hooks/useAudioPlayer";
+import { ProgressManager } from "../utils/progressManager";
 
 interface GameStats {
   correct: number;
   incorrect: number;
   total: number;
+}
+
+interface SessionData {
+  startTime: Date;
+  endTime: Date | null;
+  wordsCorrect: string[];
+  wordsIncorrect: string[];
 }
 
 function PracticeComponent() {
@@ -31,8 +39,46 @@ function PracticeComponent() {
   const [gameComplete, setGameComplete] = useState(false);
   const [availableWords, setAvailableWords] = useState<string[]>([]);
   const [shouldAutoPlay, setShouldAutoPlay] = useState(false);
+  const [sessionData, setSessionData] = useState<SessionData>({
+    startTime: new Date(),
+    endTime: null,
+    wordsCorrect: [],
+    wordsIncorrect: [],
+  });
 
   const answerRef = useRef<HTMLInputElement | null>(null);
+
+  // Save progress before unloading the page
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (isGameActive && stats.total > 0) {
+        const finalSessionData = {
+          ...sessionData,
+          endTime: new Date(),
+        };
+
+        ProgressManager.recordPracticeSession({
+          mode: mode as 'random' | 'alphabet',
+          alphabet: mode === 'alphabet' ? selectedAlphabet : undefined,
+          wordsAttempted: stats.total,
+          correctAnswers: stats.correct,
+          startTime: finalSessionData.startTime,
+          endTime: finalSessionData.endTime,
+          wordsCorrect: finalSessionData.wordsCorrect,
+          wordsIncorrect: finalSessionData.wordsIncorrect,
+        });
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      // Also save on component unmount
+      handleBeforeUnload();
+    };
+  }, [isGameActive, stats, sessionData, mode, selectedAlphabet]);
+
   useEffect(() => {
     const modeParam = searchParams.get("mode");
     const alphabetParam = searchParams.get("alphabet");
@@ -60,6 +106,33 @@ function PracticeComponent() {
       return () => clearTimeout(timer);
     }
   }, [currentWord, shouldAutoPlay, isGameActive, gameComplete, playWord]);
+
+  // Periodic save during active practice
+  useEffect(() => {
+    if (!isGameActive || stats.total === 0) return;
+
+    const saveInterval = setInterval(() => {
+      if (stats.total > 0) {
+        const currentSessionData = {
+          ...sessionData,
+          endTime: new Date(),
+        };
+
+        ProgressManager.recordPracticeSession({
+          mode: mode as 'random' | 'alphabet',
+          alphabet: mode === 'alphabet' ? selectedAlphabet : undefined,
+          wordsAttempted: stats.total,
+          correctAnswers: stats.correct,
+          startTime: currentSessionData.startTime,
+          endTime: currentSessionData.endTime,
+          wordsCorrect: currentSessionData.wordsCorrect,
+          wordsIncorrect: currentSessionData.wordsIncorrect,
+        });
+      }
+    }, 10000); // Save every 10 seconds
+
+    return () => clearInterval(saveInterval);
+  }, [isGameActive, stats.total, stats.correct, sessionData, mode, selectedAlphabet]);
   const alphabetOptions = Array.from({ length: 26 }, (_, i) => {
     const letter = String.fromCharCode(65 + i);
     const count = spellingWords.filter(
@@ -102,6 +175,18 @@ function PracticeComponent() {
     setShowAnswer(false);
     setUserInput("");
     setShouldAutoPlay(false); // Don't auto-play the first word
+
+    // Initialize session tracking and start practice session
+    setSessionData({
+      startTime: new Date(),
+      endTime: null,
+      wordsCorrect: [],
+      wordsIncorrect: [],
+    });
+
+    // Start practice session in progress manager
+    ProgressManager.startPracticeSession();
+
     if (words.length > 0) {
       const randomIndex = Math.floor(Math.random() * words.length);
       setCurrentWord(words[randomIndex]);
@@ -128,6 +213,21 @@ function PracticeComponent() {
       total: stats.total + 1,
     };
     setStats(newStats);
+
+    // Update progress in real-time
+    ProgressManager.updateWordProgress(currentWord, isCorrect);
+
+    // Track words for session data
+    setSessionData(prev => ({
+      ...prev,
+      wordsCorrect: isCorrect
+        ? [...prev.wordsCorrect, currentWord]
+        : prev.wordsCorrect,
+      wordsIncorrect: !isCorrect
+        ? [...prev.wordsIncorrect, currentWord]
+        : prev.wordsIncorrect,
+    }));
+
     if (isCorrect) {
       setFeedback("Correct! Well done!");
     } else {
@@ -145,6 +245,25 @@ function PracticeComponent() {
   };
 
   const resetGame = () => {
+    // Save progress if there was any practice
+    if (stats.total > 0) {
+      const finalSessionData = {
+        ...sessionData,
+        endTime: new Date(),
+      };
+
+      ProgressManager.recordPracticeSession({
+        mode: mode as 'random' | 'alphabet',
+        alphabet: mode === 'alphabet' ? selectedAlphabet : undefined,
+        wordsAttempted: stats.total,
+        correctAnswers: stats.correct,
+        startTime: finalSessionData.startTime,
+        endTime: finalSessionData.endTime,
+        wordsCorrect: finalSessionData.wordsCorrect,
+        wordsIncorrect: finalSessionData.wordsIncorrect,
+      });
+    }
+
     setIsGameActive(false);
     setGameComplete(false);
     setCurrentWord("");
@@ -161,8 +280,25 @@ function PracticeComponent() {
       setFeedback(
         `Practice Complete! Final Score: ${stats.correct}/${stats.total} (${Math.round((stats.correct / stats.total) * 100)}%)`,
       );
+
+      // Save progress when game is complete
+      const finalSessionData = {
+        ...sessionData,
+        endTime: new Date(),
+      };
+
+      ProgressManager.recordPracticeSession({
+        mode: mode as 'random' | 'alphabet',
+        alphabet: mode === 'alphabet' ? selectedAlphabet : undefined,
+        wordsAttempted: stats.total,
+        correctAnswers: stats.correct,
+        startTime: finalSessionData.startTime,
+        endTime: finalSessionData.endTime,
+        wordsCorrect: finalSessionData.wordsCorrect,
+        wordsIncorrect: finalSessionData.wordsIncorrect,
+      });
     }
-  }, [gameComplete, stats]);
+  }, [gameComplete, stats, sessionData, mode, selectedAlphabet]);
   if (isGameActive) {
     return (
       <div className="bg-slate-50 min-h-screen">

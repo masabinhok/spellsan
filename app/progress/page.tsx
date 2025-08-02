@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import spellingWords from '../../clean_spelling_words.json';
+import { ProgressManager } from '../utils/progressManager';
 
 interface ProgressStats {
   totalWords: number;
@@ -14,44 +15,151 @@ interface ProgressStats {
   lastPracticeDate: string;
   wordsLearned: string[];
   difficultWords: string[];
+  sessionHistory: Array<{
+    date: string;
+    mode: 'random' | 'alphabet';
+    alphabet?: string;
+    wordsAttempted: number;
+    correctAnswers: number;
+    accuracy: number;
+    duration: number;
+    wordsLearned: string[];
+    difficultWordsEncountered: string[];
+  }>;
+  streakStartDate: string;
+  totalWordsAttempted: number;
+  totalCorrectAnswers: number;
 }
 
 export default function Progress() {
-  const [stats, setStats] = useState<ProgressStats>({
-    totalWords: spellingWords.length,
-    practiceToday: 0,
-    accuracy: 0,
-    streak: 0,
-    totalPracticeSessions: 0,
-    averageAccuracy: 0,
-    lastPracticeDate: '',
-    wordsLearned: [],
-    difficultWords: [],
+  const [stats, setStats] = useState<ProgressStats>(() => {
+    const defaultStats: ProgressStats = {
+      totalWords: spellingWords.length,
+      practiceToday: 0,
+      accuracy: 0,
+      streak: 0,
+      totalPracticeSessions: 0,
+      averageAccuracy: 0,
+      lastPracticeDate: '',
+      wordsLearned: [],
+      difficultWords: [],
+      sessionHistory: [],
+      streakStartDate: '',
+      totalWordsAttempted: 0,
+      totalCorrectAnswers: 0,
+    };
+    return defaultStats;
   });
 
   const [selectedPeriod, setSelectedPeriod] = useState<'week' | 'month' | 'all'>('week');
 
   useEffect(() => {
-    // Load stats from localStorage
-    const savedStats = localStorage.getItem('spellsan-stats');
-    if (savedStats) {
-      const parsedStats = JSON.parse(savedStats);
-      setStats(prev => ({ ...prev, ...parsedStats }));
-    }
+    // Load stats from ProgressManager
+    const loadStats = () => {
+      const loadedStats = ProgressManager.loadProgress();
+      setStats(prev => ({
+        ...prev,
+        ...loadedStats,
+        totalWords: spellingWords.length, // Ensure this is always current
+      }));
+    };
+
+    // Load initial stats
+    loadStats();
+
+    // Listen for storage changes to update in real-time
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'spellsan-progress') {
+        loadStats();
+      }
+    };
+
+    // Listen for custom events from other tabs/components
+    const handleProgressUpdate = () => {
+      loadStats();
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('progressUpdated', handleProgressUpdate);
+
+    // Poll for changes every 2 seconds (for same-tab updates)
+    const pollInterval = setInterval(loadStats, 2000);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('progressUpdated', handleProgressUpdate);
+      clearInterval(pollInterval);
+    };
   }, []);
 
-  const alphabetProgress = Array.from({ length: 26 }, (_, i) => {
-    const letter = String.fromCharCode(65 + i);
-    const totalWords = spellingWords.filter(
-      word => word.charAt(0).toUpperCase() === letter
-    ).length;
-    const learnedWords = stats.wordsLearned.filter(
-      word => word.charAt(0).toUpperCase() === letter
-    ).length;
-    const progress = totalWords > 0 ? Math.round((learnedWords / totalWords) * 100) : 0;
+  const alphabetProgress = ProgressManager.getAlphabetProgress(stats, spellingWords);
 
-    return { letter, totalWords, learnedWords, progress };
-  });
+  const handleResetProgress = () => {
+    if (window.confirm('Are you sure you want to reset all your progress? This action cannot be undone.')) {
+      ProgressManager.resetProgress();
+      const defaultStats: ProgressStats = {
+        totalWords: spellingWords.length,
+        practiceToday: 0,
+        accuracy: 0,
+        streak: 0,
+        totalPracticeSessions: 0,
+        averageAccuracy: 0,
+        lastPracticeDate: '',
+        wordsLearned: [],
+        difficultWords: [],
+        sessionHistory: [],
+        streakStartDate: '',
+        totalWordsAttempted: 0,
+        totalCorrectAnswers: 0,
+      };
+      setStats(defaultStats);
+    }
+  };
+
+  const handleExportProgress = () => {
+    const progressData = ProgressManager.exportProgress();
+    const blob = new Blob([progressData], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `spellsan-progress-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  // Calculate recent activity for the selected period
+  const getRecentSessions = () => {
+    const now = new Date();
+    const cutoffDate = new Date();
+
+    switch (selectedPeriod) {
+      case 'week':
+        cutoffDate.setDate(now.getDate() - 7);
+        break;
+      case 'month':
+        cutoffDate.setMonth(now.getMonth() - 1);
+        break;
+      case 'all':
+        cutoffDate.setFullYear(2000); // Far in the past
+        break;
+    }
+
+    return stats.sessionHistory.filter(session =>
+      new Date(session.date) >= cutoffDate
+    );
+  };
+
+  const recentSessions = getRecentSessions();
+  const periodStats = {
+    totalSessions: recentSessions.length,
+    totalWords: recentSessions.reduce((sum, session) => sum + session.wordsAttempted, 0),
+    totalCorrect: recentSessions.reduce((sum, session) => sum + session.correctAnswers, 0),
+    averageAccuracy: recentSessions.length > 0
+      ? Math.round(recentSessions.reduce((sum, session) => sum + session.accuracy, 0) / recentSessions.length)
+      : 0,
+  };
 
   const achievementBadges = [
     {
@@ -133,8 +241,11 @@ export default function Progress() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-slate-600">Practice Sessions</p>
-                <p className="text-3xl font-bold text-slate-800">{stats.totalPracticeSessions}</p>
-                <p className="text-xs text-slate-500">Total completed</p>
+                <p className="text-3xl font-bold text-slate-800">{periodStats.totalSessions}</p>
+                <p className="text-xs text-slate-500">
+                  {selectedPeriod === 'all' ? 'Total completed' :
+                    selectedPeriod === 'week' ? 'This week' : 'This month'}
+                </p>
               </div>
               <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
                 <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -145,7 +256,7 @@ export default function Progress() {
             <div className="w-full bg-slate-200 rounded-full h-2 mt-4">
               <div
                 className="bg-blue-600 h-2 rounded-full transition-all duration-500"
-                style={{ width: `${Math.min((stats.totalPracticeSessions / 50) * 100, 100)}%` }}
+                style={{ width: `${Math.min((periodStats.totalSessions / 50) * 100, 100)}%` }}
               />
             </div>
           </div>
@@ -174,9 +285,12 @@ export default function Progress() {
           <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-slate-600">Average Accuracy</p>
-                <p className="text-3xl font-bold text-slate-800">{stats.averageAccuracy}%</p>
-                <p className="text-xs text-slate-500">Across all sessions</p>
+                <p className="text-sm text-slate-600">Period Accuracy</p>
+                <p className="text-3xl font-bold text-slate-800">{periodStats.averageAccuracy}%</p>
+                <p className="text-xs text-slate-500">
+                  {selectedPeriod === 'all' ? 'Overall average' :
+                    selectedPeriod === 'week' ? 'This week' : 'This month'}
+                </p>
               </div>
               <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
                 <svg className="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -187,7 +301,7 @@ export default function Progress() {
             <div className="w-full bg-slate-200 rounded-full h-2 mt-4">
               <div
                 className="bg-emerald-600 h-2 rounded-full transition-all duration-500"
-                style={{ width: `${stats.averageAccuracy}%` }}
+                style={{ width: `${periodStats.averageAccuracy}%` }}
               />
             </div>
           </div>
@@ -299,7 +413,7 @@ export default function Progress() {
         )}
 
         {/* Quick Actions */}
-        <div className="text-center">
+        <div className="text-center mb-12">
           <h2 className="text-2xl font-bold text-slate-800 mb-6">Continue Learning</h2>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
@@ -314,6 +428,82 @@ export default function Progress() {
             >
               Browse Words
             </Link>
+          </div>
+        </div>
+
+        {/* Recent Sessions */}
+        {recentSessions.length > 0 && (
+          <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-8 mb-12">
+            <h2 className="text-2xl font-bold text-slate-800 mb-6">Recent Sessions</h2>
+            <div className="space-y-4">
+              {recentSessions.slice(-10).reverse().map((session, index) => (
+                <div key={index} className="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div className={`w-3 h-3 rounded-full ${session.accuracy >= 80 ? 'bg-green-500' : session.accuracy >= 60 ? 'bg-yellow-500' : 'bg-red-500'}`}></div>
+                      <div>
+                        <p className="font-medium text-slate-800">
+                          {session.mode === 'random' ? 'Random Practice' : `Letter "${session.alphabet}" Practice`}
+                        </p>
+                        <p className="text-sm text-slate-600">
+                          {new Date(session.date).toLocaleDateString()} • {session.duration} min
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-bold text-slate-800">{session.accuracy}%</p>
+                      <p className="text-sm text-slate-600">{session.correctAnswers}/{session.wordsAttempted}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Progress Management */}
+        <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-8">
+          <h2 className="text-2xl font-bold text-slate-800 mb-6">Progress Management</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <button
+              onClick={handleExportProgress}
+              className="flex items-center justify-center space-x-2 bg-blue-100 hover:bg-blue-200 text-blue-700 font-bold py-3 px-6 rounded-xl transition-all"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <span>Export Progress</span>
+            </button>
+            <button
+              onClick={handleResetProgress}
+              className="flex items-center justify-center space-x-2 bg-red-100 hover:bg-red-200 text-red-700 font-bold py-3 px-6 rounded-xl transition-all"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              <span>Reset Progress</span>
+            </button>
+          </div>
+          <div className="mt-6 p-4 bg-slate-50 rounded-xl border border-slate-200">
+            <h3 className="font-semibold text-slate-800 mb-2">Progress Summary</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+              <div>
+                <p className="text-slate-600">Total Words</p>
+                <p className="font-bold text-slate-800">{stats.totalWordsAttempted}</p>
+              </div>
+              <div>
+                <p className="text-slate-600">Correct</p>
+                <p className="font-bold text-slate-800">{stats.totalCorrectAnswers}</p>
+              </div>
+              <div>
+                <p className="text-slate-600">Sessions</p>
+                <p className="font-bold text-slate-800">{stats.totalPracticeSessions}</p>
+              </div>
+              <div>
+                <p className="text-slate-600">Streak</p>
+                <p className="font-bold text-slate-800">{stats.streak} days</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
