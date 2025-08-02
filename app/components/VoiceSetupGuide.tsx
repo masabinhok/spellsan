@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { hasBritishVoices, getDeviceType } from "../utils/speech";
+import { getDeviceType } from "../utils/speech";
 
 interface VoiceSetupGuideProps {
   onClose: () => void;

@@ -49,32 +49,39 @@ function PracticeComponent() {
   const [timeLeft, setTimeLeft] = useState(30);
   const [isTimerActive, setIsTimerActive] = useState(false);
   const [currentWordMeaning, setCurrentWordMeaning] = useState<DictionaryDefinition | null>(null);
-  const [showMeaning, setShowMeaning] = useState(false);
   const [hintsEnabled, setHintsEnabled] = useState(false);
 
   const answerRef = useRef<HTMLInputElement | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Timer effect
-  useEffect(() => {
-    if (isTimerActive && timeLeft > 0 && !feedback && isGameActive) {
-      timerRef.current = setTimeout(() => {
-        setTimeLeft(prev => prev - 1);
-      }, 1000);
-    } else if (timeLeft === 0 && !feedback && isGameActive) {
-      // Time's up - mark as incorrect
-      handleTimeUp();
+  const getRandomWord = useCallback(() => {
+    const unusedWords = availableWords.filter(
+      (word) => !usedWords.includes(word),
+    );
+    if (unusedWords.length === 0) {
+      setGameComplete(true);
+      return "";
     }
+    const randomIndex = Math.floor(Math.random() * unusedWords.length);
+    return unusedWords[randomIndex];
+  }, [availableWords, usedWords]);
 
-    return () => {
-      if (timerRef.current) {
-        clearTimeout(timerRef.current);
-      }
-    };
-  }, [timeLeft, isTimerActive, feedback, isGameActive]);
+  const nextWord = useCallback(() => {
+    const word = getRandomWord();
+    if (word) {
+      setCurrentWord(word);
+      setUsedWords((prev) => [...prev, word]);
+      setShouldAutoPlay(true); // Enable auto-play for the new word
+      // Start timer for the new word
+      setTimeout(() => startTimer(), 500); // Small delay to let the word load
+    }
+    setUserInput("");
+    setFeedback("");
+    setShowAnswer(false);
+  }, [getRandomWord]);
 
   // Handle when time runs out
-  const handleTimeUp = () => {
+  const handleTimeUp = useCallback(() => {
     const newStats = {
       correct: stats.correct,
       incorrect: stats.incorrect + 1,
@@ -98,7 +105,27 @@ function PracticeComponent() {
     setTimeout(() => {
       if (!gameComplete) nextWord();
     }, 3000); // Show answer for 3 seconds when time runs out
-  };
+  }, [currentWord, gameComplete, nextWord, stats.correct, stats.incorrect, stats.total]);
+
+  // Timer effect
+  useEffect(() => {
+    if (isTimerActive && timeLeft > 0 && !feedback && isGameActive) {
+      timerRef.current = setTimeout(() => {
+        setTimeLeft(prev => prev - 1);
+      }, 1000);
+    } else if (timeLeft === 0 && !feedback && isGameActive) {
+      // Time's up - mark as incorrect
+      handleTimeUp();
+    }
+
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+    };
+  }, [timeLeft, isTimerActive, feedback, isGameActive, handleTimeUp]);
+
+
 
   // Reset timer when new word starts
   const startTimer = () => {
@@ -195,7 +222,6 @@ function PracticeComponent() {
   useEffect(() => {
     if (currentWord && isGameActive) {
       setCurrentWordMeaning(null); // Clear previous meaning
-      setShowMeaning(hintsEnabled); // Auto-show meaning if hints are enabled
 
       dictionaryAPI.getWordMeaning(currentWord)
         .then(meaning => {
@@ -206,13 +232,6 @@ function PracticeComponent() {
         });
     }
   }, [currentWord, isGameActive, hintsEnabled]);
-
-  // Handle global hints toggle
-  useEffect(() => {
-    if (currentWord && isGameActive) {
-      setShowMeaning(hintsEnabled);
-    }
-  }, [hintsEnabled, currentWord, isGameActive]);
 
   // Periodic save during active practice
   useEffect(() => {
@@ -247,17 +266,7 @@ function PracticeComponent() {
     ).length;
     return { letter, count };
   }).filter((item) => item.count > 0);
-  const getRandomWord = useCallback(() => {
-    const unusedWords = availableWords.filter(
-      (word) => !usedWords.includes(word),
-    );
-    if (unusedWords.length === 0) {
-      setGameComplete(true);
-      return "";
-    }
-    const randomIndex = Math.floor(Math.random() * unusedWords.length);
-    return unusedWords[randomIndex];
-  }, [availableWords, usedWords]);
+
   const startPractice = (
     practiceMode: "random" | "alphabet",
     alphabet?: string,
@@ -303,19 +312,7 @@ function PracticeComponent() {
       setTimeout(() => startTimer(), 500); // Small delay to let the word load
     }
   };
-  const nextWord = () => {
-    const word = getRandomWord();
-    if (word) {
-      setCurrentWord(word);
-      setUsedWords((prev) => [...prev, word]);
-      setShouldAutoPlay(true); // Enable auto-play for the new word
-      // Start timer for the new word
-      setTimeout(() => startTimer(), 500); // Small delay to let the word load
-    }
-    setUserInput("");
-    setFeedback("");
-    setShowAnswer(false);
-  };
+
   const checkSpelling = () => {
     // Stop the timer
     stopTimer();
@@ -502,8 +499,8 @@ function PracticeComponent() {
                 <button
                   onClick={() => setHintsEnabled(!hintsEnabled)}
                   className={`flex items-center space-x-1 px-2 py-1 rounded-lg transition-all text-xs font-medium ${hintsEnabled
-                      ? 'bg-emerald-500 text-white hover:bg-emerald-600'
-                      : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
+                    ? 'bg-emerald-500 text-white hover:bg-emerald-600'
+                    : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
                     }`}
                   title={hintsEnabled ? "Disable automatic hints" : "Enable automatic hints"}
                 >
@@ -632,7 +629,7 @@ function PracticeComponent() {
                         <p className="text-sm text-blue-800">{currentWordMeaning.meaning}</p>
                         {currentWordMeaning.example && (
                           <p className="text-xs text-blue-600 italic">
-                            Example: "{currentWordMeaning.example}"
+                            Example: &quot;{currentWordMeaning.example}&quot;
                           </p>
                         )}
                       </div>
@@ -675,7 +672,7 @@ function PracticeComponent() {
                         </div>
                         {currentWordMeaning.example && (
                           <p className="text-xs text-yellow-600 italic mt-1">
-                            "{currentWordMeaning.example}"
+                            &quot;{currentWordMeaning.example}&quot;
                           </p>
                         )}
                       </div>

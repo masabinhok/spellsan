@@ -68,7 +68,7 @@ function DifficultWordCard({ word, index }: { word: string; index: number }) {
               <p className="text-xs text-slate-700">{meaning.meaning}</p>
               {meaning.example && (
                 <p className="text-xs text-slate-500 italic">
-                  "{meaning.example}"
+                  &quot;{meaning.example}&quot;
                 </p>
               )}
             </div>

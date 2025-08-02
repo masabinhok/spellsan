@@ -106,7 +106,7 @@ function WordCard({ word, index, hintsEnabled }: { word: string; index: number; 
               {meaning.example && (
                 <div className="bg-slate-50 border-l-4 border-emerald-300 pl-3 py-2 rounded-r">
                   <p className="text-xs text-slate-600 italic">
-                    <span className="font-medium text-emerald-600">Example:</span> "{meaning.example}"
+                    <span className="font-medium text-emerald-600">Example:</span> &quot;{meaning.example}&quot;
                   </p>
                 </div>
               )}
