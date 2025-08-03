@@ -75,6 +75,19 @@ export default function Dashboard() {
       borderColor: "border-violet-200",
     },
     {
+      title: "Word Scramble",
+      description: "Unscramble words with first & last letters in place",
+      icon: (
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+        </svg>
+      ),
+      href: "/scramble",
+      bgColor: "bg-purple-50",
+      iconColor: "text-purple-600",
+      borderColor: "border-purple-200",
+    },
+    {
       title: "View Progress",
       description: "Check your learning statistics",
       icon: (
